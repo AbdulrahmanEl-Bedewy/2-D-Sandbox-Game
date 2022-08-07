@@ -29,6 +29,11 @@ void Item::setPos(float x, float y)
 	pos = Vector2{ x,y };
 }
 
+Vector2 Item::GetPos()
+{
+	return pos;
+}
+
 void Item::DrawText(Vector2 pos)
 {
 }

@@ -1,91 +1,55 @@
 #include "..\Header files\Manager.h"
 
-Manager::Manager(Dirt* d) 
+Manager::Manager(UIInfo* p) :player(p)
 {
 	minPoint = Vector2{ -5000,-900 };
-	maxPoint = Vector2{ 5000,900 };
-	for (int i = minPoint.x; i < maxPoint.x; i += 32)
-	{
-		if (i == -8 || i == 24)
-			continue;
-		dirtblocks.push_back(Vector2{ (float)i, 368 });
-	}
-	dirt = d;
-	nibba.rec = Rectangle{ 0,0,40,40 };
-	nibba.Xspeed = 0;
-	nibba.Yspeed = 100;
-	nibba.InAir = true;
+	maxPoint = Vector2{ 500,900 };
+	pUI = p;
+
+	scrollingBack1 = 0.0f;
+	scrollingBack2 = 0.0f;
+	scrollingBack3 = 0.0f;
+	scrollingBack4 = 0.0f;
+	scrollingBack5 = 0.0f;
+
+
+	GenerateWorld();
+
+
+
 	camera = { 0 };
-	camera.target = Vector2{ nibba.rec.x + 20 , nibba.rec.y + 20 };;
+	camera.target = Vector2{ player.getPos().x + 20 , player.getPos().y + 20 };;
 	camera.offset = Vector2{ 800 / 2.0f, 400 / 2.0f };
 	camera.rotation = 0.0f;
-	camera.zoom = 1.0f;
+	camera.zoom = 0.8;
 }
 
 void Manager::Update(int WindowWidth, int WindowHeight)
 {
 
-	UpdatePlayer(WindowWidth, WindowHeight);
+	player.Update(this);
 	UpdateCam(WindowWidth, WindowHeight);
 
+	scrollingBack1 -= 0.7f;
+	scrollingBack2 -= 0.5f;
+	scrollingBack3 -= 1.0f;
+	scrollingBack4 -= 0.5f;
+	scrollingBack5 -= 1.0f;
+
+
+	if (scrollingBack1 <= -pUI->background1.width * WindowWidth / pUI->background1.width) scrollingBack1 = 0;
+	if (scrollingBack2 <= -pUI->background2.width * WindowWidth / pUI->background2.width) scrollingBack2 = 0;
+	if (scrollingBack3 <= -pUI->background3.width * WindowWidth / pUI->background3.width) scrollingBack3 = 0;
+	if (scrollingBack4 <= -pUI->background4.width * WindowWidth / pUI->background4.width) scrollingBack4 = 0;
+	if (scrollingBack5 <= -pUI->background5.width * WindowWidth / pUI->background5.width) scrollingBack5 = 0;
 }
 
-void Manager::UpdatePlayer(int WindowWidth, int WindowHeight)
-{
-	nibba.InAir = true;
-	for (int i = floorf((nibba.rec.x - 40 + (-minPoint.x)) / 32.0f); i < ceilf((nibba.rec.x + 40 + (-minPoint.x)) / 32.0f); i++)
-	{
-		if (i < dirtblocks.size() && CheckCollisionRecs(nibba.rec, Rectangle{ dirtblocks[i].x, dirtblocks[i].y , 32,32 })) {
-			nibba.InAir = false;
-			nibba.Yspeed = 0;
-			nibba.rec.y = dirtblocks[i].y - 39;
-		}
-	}
-	if (IsKeyPressed(KEY_SPACE) && !nibba.InAir) {
-		nibba.Yspeed = -400;
-		nibba.InAir = true;
-	}
-	if (nibba.InAir)
-	{
-		nibba.Yspeed += 600 * GetFrameTime();
-	}
 
-	if (IsKeyDown(KEY_D)) {
-		nibba.Xspeed = 200;
-	}
-	if (IsKeyDown(KEY_A))
-	{
-		if (nibba.Xspeed == 200)
-			nibba.Xspeed = 0;
-		else
-			nibba.Xspeed = -200;
-	}
-	if (IsKeyUp(KEY_A) && IsKeyUp(KEY_D))
-	{
-		nibba.Xspeed = 0;
-	}
-
-	if (nibba.InAir)
-	{
-		nibba.rec.y += nibba.Yspeed * GetFrameTime();
-	}
-
-	nibba.rec.x += nibba.Xspeed * GetFrameTime();
-
-	if (nibba.rec.y + 40 > maxPoint.y)
-		nibba.rec.y = maxPoint.y - 40;
-
-	if (nibba.rec.x + 40 > maxPoint.x)
-		nibba.rec.x = maxPoint.x - 40;
-
-	if (nibba.rec.x < minPoint.x)
-		nibba.rec.x = minPoint.x;
-
-}
 
 void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 {
-	camera.target = Vector2{ nibba.rec.x + 20 , nibba.rec.y + 20 };
+	Vector2 pos = player.getPos();
+	camera.target = Vector2{ pos.x + 20 , pos.y + 20 };
 	camera.offset = Vector2{ WindowWidth / 2.0f, WindowHeight / 2.0f };
 	Vector2 max = GetWorldToScreen2D(Vector2{ maxPoint.x, maxPoint.y }, camera);
 	Vector2 min = GetWorldToScreen2D(Vector2{ minPoint.x , minPoint.y }, camera);
@@ -95,23 +59,93 @@ void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 	if (min.y > 0) camera.offset.y = WindowHeight / 2 - min.y;
 }
 
+void Manager::GenerateWorld()
+{
+	for (int i = (minPoint.y + maxPoint.y) / 2; i < maxPoint.y; i += pUI->blockHeight)
+	{
+		vector<Dirt*> temp;
+		for (int j = minPoint.x; j < maxPoint.x; j += pUI->blockWidth)
+		{
+			if (j == -8 || j == 24)
+				continue;
+			temp.push_back(new Dirt(pUI, Block, Vector2{ (float)j, (float)i }));
+		}
+		dirtblocks.push_back(temp);
+	}
+}
+
+bool isSurfaceTile(int row , int column) {
+	// should be redone when a propper 2D array/vector system is implemented to represent the world
+	return row > 0;
+}
+
 void Manager::Draw(int WindowWidth, int WindowHeight)
 {
 	BeginDrawing();
-	BeginMode2D(camera);
 	ClearBackground(LIGHTGRAY);
-	Vector2 itemPos = GetScreenToWorld2D(Vector2{ 10.0f , 10.0f }, camera);
-	for (int i = floorf((nibba.rec.x - WindowWidth + (-minPoint.x)) / 32.0f); i < ceilf((nibba.rec.x + WindowWidth + (-minPoint.x) +32) / 32.0f); i++)
+
+	float backgroundWidth1 = pUI->background1.width * WindowWidth / pUI->background1.width;
+	float backgroundWidth2 = pUI->background2.width * WindowWidth / pUI->background2.width;
+	float backgroundWidth3 = pUI->background3.width * WindowWidth / pUI->background3.width;
+	float backgroundWidth4 = pUI->background4.width * WindowWidth / pUI->background4.width;
+	float backgroundWidth5 = pUI->background5.width * WindowWidth / pUI->background5.width;
+
+	DrawTexturePro(pUI->background1, Rectangle{ 0,0,(float)pUI->background1.width, (float)pUI->background1.height }, Rectangle{ scrollingBack1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+	DrawTexturePro(pUI->background1, Rectangle{ 0,0,(float)pUI->background1.width, (float)pUI->background1.height }, Rectangle{ scrollingBack1 + backgroundWidth1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+
+
+	DrawTexturePro(pUI->background2, Rectangle{ 0,0,(float)pUI->background2.width, (float)pUI->background2.height }, Rectangle{ scrollingBack2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+	DrawTexturePro(pUI->background2, Rectangle{ 0,0,(float)pUI->background2.width, (float)pUI->background2.height }, Rectangle{ scrollingBack2 + backgroundWidth2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+
+	DrawTexturePro(pUI->background3, Rectangle{ 0,0,(float)pUI->background3.width, (float)pUI->background3.height }, Rectangle{ scrollingBack3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+	DrawTexturePro(pUI->background3, Rectangle{ 0,0,(float)pUI->background3.width, (float)pUI->background3.height }, Rectangle{ scrollingBack3 + backgroundWidth3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+	DrawTexturePro(pUI->background4, Rectangle{ 0,0,(float)pUI->background4.width, (float)pUI->background4.height }, Rectangle{ scrollingBack4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+	DrawTexturePro(pUI->background4, Rectangle{ 0,0,(float)pUI->background4.width, (float)pUI->background4.height }, Rectangle{ scrollingBack4 + backgroundWidth4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+	DrawTexturePro(pUI->background5, Rectangle{ 0,0,(float)pUI->background5.width, (float)pUI->background5.height }, Rectangle{ scrollingBack5, 0, backgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+	DrawTexturePro(pUI->background5, Rectangle{ 0,0,(float)pUI->background5.width, (float)pUI->background5.height }, Rectangle{ scrollingBack5 + backgroundWidth5, 0, backgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+
+	BeginMode2D(camera);
+
+	
+	Vector2 pos = player.getPos();
+
+	for (int i = /*floorf((nibba.rec.y - WindowHeight + (-minPoint.y)) / (float)pUI->blockHeight)*/ 0; i < ceilf((pos.y + WindowHeight  /* + (-minPoint.y)*/) / (float)pUI->blockHeight); i++)
 	{
-		if(i<dirtblocks.size())
-			dirt->DrawItem(dirtblocks[i], 0, Left, Placed);
+		for (int j = floorf((pos.x - (2 - camera.zoom) * WindowWidth + (-minPoint.x)) / 32.0f); j < ceilf((pos.x + (2 - camera.zoom)*WindowWidth + (-minPoint.x) + 32) / 32.0f); j++) // 
+		{
+			if (i < dirtblocks.size() && j < dirtblocks[i].size())
+				dirtblocks[i][j]->DrawItem(0, Right, Placed);
+		}
 	}
-	DrawRectangleRec(nibba.rec, RED);
+
+
+	player.draw();
 	EndMode2D();
+
 
 	for (int i = 0; i < 10; i++)
 	{
 		DrawRectangle(10 + i * 35 + i * 5, 30, 35, 35, Fade(BLUE, 0.3));
 	}
 	EndDrawing();
+}
+
+Vector2 Manager::getminPoint()
+{
+	return minPoint;
+}
+
+Vector2 Manager::getmaxPoint()
+{
+	return maxPoint;
+}
+
+vector<vector<Dirt*>>::const_iterator  Manager::getDirtBlocks()
+{
+	return dirtblocks.begin();
 }

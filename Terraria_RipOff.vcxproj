@@ -18,25 +18,10 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Header files\Defs.h" />
-    <ClInclude Include="Header files\Dirt.h" />
-    <ClInclude Include="Header files\Item.h" />
-    <ClInclude Include="Header files\Manager.h" />
-    <ClInclude Include="Header files\Player.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Source Files\Dirt.cpp" />
-    <ClCompile Include="Source Files\Item.cpp" />
-    <ClCompile Include="Source Files\Manager.cpp" />
-    <ClCompile Include="Source Files\Player.cpp" />
-    <ClCompile Include="Source Files\Source.cpp" />
-    <ClCompile Include="Source Files\Source1.cpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{817208ca-66ad-46d1-8871-ac96fbb344fe}</ProjectGuid>
+    <ProjectGuid>{3ffc8ebb-f0e7-4a47-b7a6-34176529d3ba}</ProjectGuid>
     <RootNamespace>TerrariaRipOff</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
@@ -153,6 +138,21 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="Source Files\Dirt.cpp" />
+    <ClCompile Include="Source Files\Item.cpp" />
+    <ClCompile Include="Source Files\Manager.cpp" />
+    <ClCompile Include="Source Files\Player.cpp" />
+    <ClCompile Include="Source Files\Source.cpp" />
+    <ClCompile Include="Source Files\Source1.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Header files\Defs.h" />
+    <ClInclude Include="Header files\Dirt.h" />
+    <ClInclude Include="Header files\Item.h" />
+    <ClInclude Include="Header files\Manager.h" />
+    <ClInclude Include="Header files\Player.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

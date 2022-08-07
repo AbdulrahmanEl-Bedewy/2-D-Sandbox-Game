@@ -1,3 +1,0 @@
-D:\Games\My_Games\Terraria_RipOff\Debug\Terraria_RipOff.vcxproj.CopyComplete
-D:\Games\My_Games\Terraria_RipOff\Debug\Terraria_RipOff.exe
-D:\Games\My_Games\Terraria_RipOff\Debug\raylib.dll

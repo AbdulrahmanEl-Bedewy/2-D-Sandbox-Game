@@ -35,7 +35,11 @@ struct UIInfo
 	Texture2D dirtTex;
 	Texture2D player;
 	Texture2D mob;
-	Texture2D background;
-	int blockWidth;
-	int blockHeight;
+	Texture2D background1;
+	Texture2D background2;
+	Texture2D background3;
+	Texture2D background4;
+	Texture2D background5;
+	float blockWidth;
+	float blockHeight;
 };
