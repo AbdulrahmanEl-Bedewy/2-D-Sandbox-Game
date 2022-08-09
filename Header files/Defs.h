@@ -19,7 +19,8 @@ enum ItemState
 {
 	Onhand,
 	Placed,
-	Mined
+	Mined,
+	Picked
 };
 
 enum PlayerOrientaion

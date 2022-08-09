@@ -6,6 +6,6 @@ class Dirt :
 {
 public:
     Dirt(UIInfo* p, ItemClass itemclass, Vector2 position);
-    virtual void DrawItem(/*Vector2 pos, */int rotation, PlayerOrientaion orientation, ItemState State);
+    virtual void DrawItem(int rotation, PlayerOrientaion orientation, ItemState State, Vector2 pos = { 0,0 });
     virtual void DrawText(Vector2 pos);
 };

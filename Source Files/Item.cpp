@@ -2,21 +2,7 @@
 
 
 
-//void Item::setTexture(Texture2D t)
-//{
-//}
-//
-//void Item::setName(string n)
-//{
-//}
-//
-//void Item::setDescription(string d)
-//{
-//}
-//
-//void Item::setDamage(int d)
-//{
-//}
+
 
 
 void Item::setPos(Vector2 p)
@@ -29,9 +15,24 @@ void Item::setPos(float x, float y)
 	pos = Vector2{ x,y };
 }
 
+void Item::setState(ItemState state)
+{
+	itemstate = state;
+}
+
 Vector2 Item::GetPos()
 {
 	return pos;
+}
+
+ItemClass Item::GetItemType()
+{
+	return itemClass;
+}
+
+ItemState Item::GetItemState()
+{
+	return itemstate;
 }
 
 void Item::DrawText(Vector2 pos)

@@ -18,12 +18,13 @@ class Manager
 	Vector2 maxPoint;
 	Player player;
 	vector<vector<Dirt*>> dirtblocks;
+	/*vector<vector<Dirt*>> Pickable;*/
 	float scrollingBack1;
 	float scrollingBack2;
 	float scrollingBack3;
 	float scrollingBack4;
 	float scrollingBack5;
-
+	
 
 	/*void UpdatePlayer(int WindowWidth, int WindowHeight);*/
 	void UpdateCam(int WindowWidth, int WindowHeight);
@@ -34,8 +35,13 @@ public:
 
 	void Update(int WindowWidth, int WindowHeight);
 	void Draw(int WindowWidth, int WindowHeight);
+	void AddPickable(Item* item);
+	void RemoveBlock(int i, int j);
 
 	Vector2 getminPoint();
 	Vector2 getmaxPoint();
 	vector<vector<Dirt*>>::const_iterator getDirtBlocks();
+
+
+	~Manager();
 };

@@ -140,6 +140,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source Files\Dirt.cpp" />
+    <ClCompile Include="Source Files\Inventory.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\Manager.cpp" />
     <ClCompile Include="Source Files\Player.cpp" />
@@ -149,6 +150,7 @@
   <ItemGroup>
     <ClInclude Include="Header files\Defs.h" />
     <ClInclude Include="Header files\Dirt.h" />
+    <ClInclude Include="Header files\Inventory.h" />
     <ClInclude Include="Header files\Item.h" />
     <ClInclude Include="Header files\Manager.h" />
     <ClInclude Include="Header files\Player.h" />
