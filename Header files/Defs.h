@@ -35,6 +35,7 @@ struct UIInfo
 	string dirtName;
 	string dirtDes;
 	Texture2D dirtTex;
+	Texture2D wall;
 	Texture2D player;
 	Texture2D mob;
 	Texture2D background1;

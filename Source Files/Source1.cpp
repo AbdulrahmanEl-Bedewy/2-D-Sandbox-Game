@@ -12,6 +12,7 @@ int main() {
 	ui_Info.dirtDes = string{ "Block can be placed" };
 	ui_Info.dirtName = string{ "DirtBlock" };
 	ui_Info.dirtTex = LoadTexture("textures/grass.png");
+	ui_Info.wall = LoadTexture("textures/Text2.png");
 	ui_Info.player = LoadTexture("textures/NPCSprites/LesanUrchinMan.png");
 	ui_Info.background1 = LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-bg.png");
 	ui_Info.background2 = LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-montain-far.png");

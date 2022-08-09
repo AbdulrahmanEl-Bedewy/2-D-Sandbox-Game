@@ -18,6 +18,7 @@ class Manager
 	Vector2 maxPoint;
 	Player player;
 	vector<vector<Dirt*>> dirtblocks;
+	vector<vector<int>> wall;
 	/*vector<vector<Dirt*>> Pickable;*/
 	float scrollingBack1;
 	float scrollingBack2;
@@ -41,7 +42,7 @@ public:
 	Vector2 getminPoint();
 	Vector2 getmaxPoint();
 	vector<vector<Dirt*>>::const_iterator getDirtBlocks();
-
+	bool isSurfaceTile(int row, int column);
 
 	~Manager();
 };

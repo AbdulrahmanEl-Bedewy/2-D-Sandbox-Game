@@ -123,7 +123,7 @@ void Manager::GenerateWorld()
 	//}
 	//int test = 0;
 	float smoothness = 320.0f;
-	float modifier = 0.01;
+	float modifier = 0.03;
 	for (int x = 0; x < WorldWidth; x++) {
 		//if (test % 80 == 0)
 		//	smoothness = 10;
@@ -137,11 +137,18 @@ void Manager::GenerateWorld()
 	for (int i = 0; i < (maxPoint.y - minPoint.y) / pUI->blockHeight /*112*/; i++)
 	{
 		vector<Dirt*> temp;
+		wall.push_back(vector<int>{});
 		for (int j = 0; j < (maxPoint.x - minPoint.x) / pUI->blockWidth /*344*/; j++)
 		{
+			
+			
 			if (i * 16 + minPoint.y < -arr[j]) /*if(j*16 -5000>0)*/
+			{
 				temp.push_back(NULL);
-			else
+				wall[i].push_back(0);
+			}
+			else {
+				wall[i].push_back(1);
 				if (first < 51 && j * 16 + minPoint.x > 0) // mined blocks to test picking up 
 				{
 					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * 16 + minPoint.x, (float)i * 16 + minPoint.y });
@@ -151,7 +158,7 @@ void Manager::GenerateWorld()
 				}
 				else
 				{
-					if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i*16 + minPoint.y > 0) {
+					if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i * 16 + minPoint.y > 100) {
 						temp.push_back(NULL);
 					}
 					else {
@@ -160,6 +167,7 @@ void Manager::GenerateWorld()
 						temp.push_back(d);
 					}
 				}
+			}
 		}
 		dirtblocks.push_back(temp);
 	}
@@ -179,9 +187,15 @@ void Manager::GenerateWorld()
 	//cout << sizeof(dirtblocks) << endl << sizeof(dirtblocks[0]) << endl << sizeof(*dirtblocks[154][350]) << endl;
 }
 
-bool isSurfaceTile(int row , int column) {
+bool Manager::isSurfaceTile(int row , int column) {
 	// should be redone when a propper 2D array/vector system is implemented to represent the world
-	return row > 0;
+	if (row == 0 ||column==0)
+		return true;
+	
+	if (!dirtblocks[row-1][column-1])
+		return true;
+
+	return false;
 }
 
 void Manager::Draw(int WindowWidth, int WindowHeight)
@@ -225,15 +239,21 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	BeginMode2D(camera);
 
 	
-	Vector2 pos = player.getPos();
+	Vector2 PlayerPos = player.getPos();
+	
 
-
-	for (int i = ((int)(pos.y - minPoint.y )/16)  - WindowHeight /8 ; i < ((int)(pos.y - minPoint.y) / 16) + WindowHeight / 8 ; i++)
+	for (int i = ((int)(PlayerPos.y - minPoint.y )/16)  - WindowHeight /8 ; i < ((int)(PlayerPos.y - minPoint.y) / 16) + WindowHeight / 8 ; i++)
 	{
-		for (int j = ((int)(pos.x - minPoint.x) / 16)  - WindowWidth / 16 ; j < (int)(pos.x - minPoint.x)/16  + WindowWidth / 16 ; j++) // 
+		for (int j = ((int)(PlayerPos.x - minPoint.x) / 16)  - WindowWidth / 16 ; j < (int)(PlayerPos.x - minPoint.x)/16  + WindowWidth / 16 ; j++) // 
 		{
-			if (i < dirtblocks.size() && j < dirtblocks[i].size() && dirtblocks[i][j])
-				dirtblocks[i][j]->DrawItem(0, Right, Placed);
+			if (i < dirtblocks.size() && j < dirtblocks[i].size()) {
+				if (wall[i][j])
+				{
+					DrawTexturePro(pUI->wall, Rectangle{ 0,0, 2048,2048 }, Rectangle{ (float)j * 16 + minPoint.x, (float)i * 16 + minPoint.y, pUI->blockWidth , pUI->blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+				}
+				if(dirtblocks[i][j])
+					dirtblocks[i][j]->DrawItem(0, Right, Placed);
+			}
 		}
 	}
 
