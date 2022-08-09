@@ -36,6 +36,15 @@ int main() {
 		//DrawTextureRec(tex, Rectangle{ 0,64,32,32 }, Vector2{ 0,368 }, WHITE);
 		//EndDrawing();
 	}
+
+	UnloadTexture(ui_Info.dirtTex);
+	UnloadTexture(ui_Info.player);
+	UnloadTexture(ui_Info.background1);
+	UnloadTexture(ui_Info.background2) ;
+	UnloadTexture(ui_Info.background3);
+	UnloadTexture(ui_Info.background4);
+	UnloadTexture(ui_Info.background5);
+
 }
 
 

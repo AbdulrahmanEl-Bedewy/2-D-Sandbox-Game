@@ -3,8 +3,8 @@
 #include "raylib.h"
 using namespace std;
 
-#define WorldWidth 3000
-#define WorldHeight 1000
+#define WorldWidth 1500 // in blocks
+#define WorldHeight 156 //in blocks
 #define SectorWidth 2000
 
 enum ItemClass
@@ -31,6 +31,7 @@ enum PlayerOrientaion
 
 struct UIInfo
 {
+	//int WorldWidth;
 	string dirtName;
 	string dirtDes;
 	Texture2D dirtTex;

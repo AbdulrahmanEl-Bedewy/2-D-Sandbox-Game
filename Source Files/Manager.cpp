@@ -1,10 +1,14 @@
 #include "..\Header files\Manager.h"
+#include "../SimpleNoise/SimplexNoise.h"
+//#include <iostream>
+//using namespace std;
 
 Manager::Manager(UIInfo* p) :player(p)
 {
-	minPoint = Vector2{ -5000,-900 };
-	maxPoint = Vector2{ 504,892 };
 	pUI = p;
+
+	minPoint = Vector2{ -WorldWidth / 2 * pUI->blockWidth ,-WorldHeight / 2 * pUI->blockHeight };
+	maxPoint = Vector2{ WorldWidth / 2 * pUI->blockWidth ,WorldHeight / 2 * pUI->blockHeight };
 
 	scrollingBack1 = 0.0f;
 	scrollingBack2 = 0.0f;
@@ -107,36 +111,54 @@ void PerlinNoise1D(int nCount, float* fSeed, int nOctaves, float fBias, float* f
 
 void Manager::GenerateWorld()
 {
+	float arr[WorldWidth];
+	float seed = rand();
 
-	float arr[344];
-	float fNoiseSeed1D[344];
-	for (int i = 0; i < 344; i++) fNoiseSeed1D[i] = (float)rand() / (float)RAND_MAX;
-	PerlinNoise1D(344, fNoiseSeed1D, 4, 0.3, arr);
-	for (int i = 0; i < 344; i++) {
-		arr[i] = (int)(arr[i]*320)/16 *16;
+	//float fNoiseSeed1D[344];
+	//for (int i = 0; i < 344; i++) fNoiseSeed1D[i] = (float)rand() / (float)RAND_MAX;
+	//PerlinNoise1D(344, fNoiseSeed1D, 4, 0.4, arr); //6, 0.6
+	
+	//for (int i = 0; i < 344; i++) {
+	//	arr[i] = (int)(arr[i] * 800) / 16 * 16;
+	//}
+	//int test = 0;
+	float smoothness = 320.0f;
+	float modifier = 0.01;
+	for (int x = 0; x < WorldWidth; x++) {
+		//if (test % 80 == 0)
+		//	smoothness = 10;
+		//else
+		//	smoothness = 320;
+		arr[x] = (int)(SimplexNoise::noise(x / smoothness, seed)* 600 / 16) * 16;
 	}
+
 	int first = 0;
 
-	for (int i = 0; i <112; i++)
+	for (int i = 0; i < (maxPoint.y - minPoint.y) / pUI->blockHeight /*112*/; i++)
 	{
 		vector<Dirt*> temp;
-		for (int j = 0; j < 344; j ++)
+		for (int j = 0; j < (maxPoint.x - minPoint.x) / pUI->blockWidth /*344*/; j++)
 		{
-			if (i * 16 -900 < -arr[j]) /*if(j*16 -5000>0)*/
+			if (i * 16 + minPoint.y < -arr[j]) /*if(j*16 -5000>0)*/
 				temp.push_back(NULL);
 			else
-				if (first < 51 && j * 16 - 4500 > 0) // mined blocks to test picking up 
+				if (first < 51 && j * 16 + minPoint.x > 0) // mined blocks to test picking up 
 				{
-					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * 16 - 5000, (float)i * 16 - 900 });
+					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * 16 + minPoint.x, (float)i * 16 + minPoint.y });
 					d->setState(Mined);
 					temp.push_back(d);
 					first++;
 				}
 				else
 				{
-					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * 16 - 5000, (float)i * 16 - 900 });
-					d->setState(Placed);
-					temp.push_back(d);
+					if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i*16 + minPoint.y > 0) {
+						temp.push_back(NULL);
+					}
+					else {
+						Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * 16 + minPoint.x, (float)i * 16 + minPoint.y });
+						d->setState(Placed);
+						temp.push_back(d);
+					}
 				}
 		}
 		dirtblocks.push_back(temp);
@@ -154,6 +176,7 @@ void Manager::GenerateWorld()
 	//	}
 	//	dirtblocks.push_back(temp);
 	//}
+	//cout << sizeof(dirtblocks) << endl << sizeof(dirtblocks[0]) << endl << sizeof(*dirtblocks[154][350]) << endl;
 }
 
 bool isSurfaceTile(int row , int column) {
@@ -205,9 +228,9 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	Vector2 pos = player.getPos();
 
 
-	for (int i = ((int)(pos.y+900)/16)  - WindowHeight /8 ; i < ((int)(pos.y + 900) / 16) + WindowHeight / 8 ; i++)
+	for (int i = ((int)(pos.y - minPoint.y )/16)  - WindowHeight /8 ; i < ((int)(pos.y - minPoint.y) / 16) + WindowHeight / 8 ; i++)
 	{
-		for (int j = ((int)(pos.x + 5000) / 16)  - WindowWidth / 16 ; j < (int)(pos.x + 5000)/16  + WindowWidth / 16 ; j++) // 
+		for (int j = ((int)(pos.x - minPoint.x) / 16)  - WindowWidth / 16 ; j < (int)(pos.x - minPoint.x)/16  + WindowWidth / 16 ; j++) // 
 		{
 			if (i < dirtblocks.size() && j < dirtblocks[i].size() && dirtblocks[i][j])
 				dirtblocks[i][j]->DrawItem(0, Right, Placed);

@@ -37,12 +37,12 @@ void Player::Update(Manager* pManager)
 	InAir = true;
 
 	// check for collisions for picking items and not falling
-	for (int i = ((int)(pos.y + 900) / 16) - 1; i < ((int)(pos.y + 900 ) / 16) + 6; i++)
+	for (int i = ((int)(pos.y - minPoint.y) / 16) - 1; i < ((int)(pos.y - minPoint.y) / 16) + 6; i++)
 	{
 		bool br = false;
-		for (int j = ((int)(pos.x + 5000) / 16) - 4; j < (int)(pos.x + 5000) / 16 + 4; j++) // 
+		for (int j = ((int)(pos.x - minPoint.x) / 16) - 4; j < (int)(pos.x - minPoint.x) / 16 + 4; j++) // 
 		{
-			if (i>0 && j > 0 &&i < 112 && j < 344 && dirtblocks[i][j]) {
+			if (i>0 && j > 0 &&i < WorldHeight && j < WorldWidth && dirtblocks[i][j]) {
 			
 				Vector2 dirtpos = dirtblocks[i][j]->GetPos();
 				

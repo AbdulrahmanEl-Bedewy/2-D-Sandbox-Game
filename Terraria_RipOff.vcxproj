@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="SimpleNoise\SimplexNoise.cpp" />
     <ClCompile Include="Source Files\Dirt.cpp" />
     <ClCompile Include="Source Files\Inventory.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
@@ -146,6 +147,7 @@
     <ClCompile Include="Source Files\Player.cpp" />
     <ClCompile Include="Source Files\Source.cpp" />
     <ClCompile Include="Source Files\Source1.cpp" />
+    <ClCompile Include="Source Files\World.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header files\Defs.h" />
@@ -154,6 +156,8 @@
     <ClInclude Include="Header files\Item.h" />
     <ClInclude Include="Header files\Manager.h" />
     <ClInclude Include="Header files\Player.h" />
+    <ClInclude Include="Header files\World.h" />
+    <ClInclude Include="SimpleNoise\SimplexNoise.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
