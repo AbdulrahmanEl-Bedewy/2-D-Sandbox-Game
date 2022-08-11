@@ -14,8 +14,10 @@ Manager::Manager(UIInfo* p) :player(p)
 	scrollingBack2 = 0.0f;
 	scrollingBack3 = 0.0f;
 	scrollingBack4 = 0.0f;
-	scrollingBack5 = 0.0f;
+	scrollingBackSun_Moon = 0.0f;
 
+	Day = true;
+	
 
 	GenerateWorld();
 
@@ -33,33 +35,66 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 
 	player.Update(this);
 	UpdateCam(WindowWidth, WindowHeight);
+
+	scrollingBackSun_Moon += 10* GetFrameTime();
+	if (scrollingBackSun_Moon >= 1600)
+	{
+		Day = !Day;
+		scrollingBackSun_Moon = 0;
+	}
+
 	if (player.getSpeedX() < 0) {
-		scrollingBack1 += 0.3f;
-		scrollingBack2 += 0.5f;
+		scrollingBack1 += 0.1f;
+		scrollingBack2 += 0.2f;
 		scrollingBack3 += 0.7f;
 		scrollingBack4 += 1.0f;
-		scrollingBack5 += 1.4f;
 	}
 	else if (player.getSpeedX() > 0) {
-		scrollingBack1 -= 0.3f;
-		scrollingBack2 -= 0.5f;
+		scrollingBack1 -= 0.1f;
+		scrollingBack2 -= 0.2f;
 		scrollingBack3 -= 0.7f;
 		scrollingBack4 -= 1.0f;
-		scrollingBack5 -= 1.4f;
 	}
-	 // went too far to left
-	if (scrollingBack1 <= -pUI->background1.width * WindowWidth / pUI->background1.width) scrollingBack1 = 0;
-	if (scrollingBack2 <= -pUI->background2.width * WindowWidth / pUI->background2.width) scrollingBack2 = 0;
-	if (scrollingBack3 <= -pUI->background3.width * WindowWidth / pUI->background3.width) scrollingBack3 = 0;
-	if (scrollingBack4 <= -pUI->background4.width * WindowWidth / pUI->background4.width) scrollingBack4 = 0;
-	if (scrollingBack5 <= -pUI->background5.width * WindowWidth / pUI->background5.width) scrollingBack5 = 0;
 
-	//too far to right
-	if (scrollingBack1 >= pUI->background1.width * WindowWidth / pUI->background1.width) scrollingBack1 = 0;
-	if (scrollingBack2 >= pUI->background2.width * WindowWidth / pUI->background2.width) scrollingBack2 = 0;
-	if (scrollingBack3 >= pUI->background3.width * WindowWidth / pUI->background3.width) scrollingBack3 = 0;
-	if (scrollingBack4 >= pUI->background4.width * WindowWidth / pUI->background4.width) scrollingBack4 = 0;
-	if (scrollingBack5 >= pUI->background5.width * WindowWidth / pUI->background5.width) scrollingBack5 = 0;
+	switch (Day)
+	{
+	case 0:
+		if (scrollingBack1 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
+		if (scrollingBack2 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
+		if (scrollingBack3 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
+		if (scrollingBack4 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+		//if (scrollingBack5 <= -pUI->Morningbackground5.width * WindowWidth / pUI->Morningbackground5.width) scrollingBack5 = 0;
+
+		//too far to right
+		if (scrollingBack1 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
+		if (scrollingBack2 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
+		if (scrollingBack3 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
+		if (scrollingBack4 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+		
+		if (scrollingBackSun_Moon >= pUI->Moon.width * WindowWidth / pUI->Moon.width) scrollingBackSun_Moon = 0;
+		break;
+	case 1:
+
+		 // went too far to left
+		if (scrollingBack1 <= -pUI->Morningbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
+		if (scrollingBack2 <= -pUI->Morningbackground2.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
+		if (scrollingBack3 <= -pUI->Morningbackground3.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
+		if (scrollingBack4 <= -pUI->Morningbackground4.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+		//if (scrollingBack5 <= -pUI->Morningbackground5.width * WindowWidth / pUI->Morningbackground5.width) scrollingBack5 = 0;
+
+		//too far to right
+		if (scrollingBack1 >= pUI->Morningbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
+		if (scrollingBack2 >= pUI->Morningbackground2.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
+		if (scrollingBack3 >= pUI->Morningbackground3.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
+		if (scrollingBack4 >= pUI->Morningbackground4.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+
+		if (scrollingBackSun_Moon >= pUI->Sun.width * WindowWidth / pUI->Sun.width) scrollingBackSun_Moon = 0;
+	//	if (scrollingBack5 >= pUI->Morningbackground5.width * WindowWidth / pUI->Morningbackground5.width) scrollingBack5 = 0;
+
+		break;
+	default:
+		break;
+	}
 }
 
 
@@ -158,7 +193,7 @@ void Manager::GenerateWorld()
 				}
 				else
 				{
-					if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i * blockHeight + minPoint.y > 100 && i!=155) {
+					if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i * blockHeight + minPoint.y > 400 && i!=155) {
 						temp.push_back(NULL);
 					}
 					else {
@@ -217,36 +252,81 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 
 	
 
-	float backgroundWidth1 = pUI->background1.width * WindowWidth / pUI->background1.width + WindowWidth * 0.25;
-	float backgroundWidth2 = pUI->background2.width * WindowWidth / pUI->background2.width;
-	float backgroundWidth3 = pUI->background3.width * WindowWidth / pUI->background3.width;
-	float backgroundWidth4 = pUI->background4.width * WindowWidth / pUI->background4.width;
-	float backgroundWidth5 = pUI->background5.width * WindowWidth / pUI->background5.width;
+	float backgroundWidth1;
+	float backgroundWidth2;
+	float backgroundWidth3;
+	float backgroundWidth4;
+	/*float MorningbackgroundWidth5 = pUI->Morningbackground5.width * WindowWidth / pUI->Morningbackground5.width;*/
 
-	DrawTexturePro(pUI->background1, Rectangle{ 0,0,(float)pUI->background1.width, (float)pUI->background1.height }, Rectangle{ scrollingBack1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background1, Rectangle{ 0,0,(float)pUI->background1.width, (float)pUI->background1.height }, Rectangle{ scrollingBack1 + backgroundWidth1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background1, Rectangle{ 0,0,(float)pUI->background1.width, (float)pUI->background1.height }, Rectangle{ scrollingBack1 - backgroundWidth1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+	switch (Day)
+	{
+	case 0:
+		backgroundWidth1 = pUI->Nightbackground1.width * WindowWidth / pUI->Nightbackground1.width + WindowWidth * 0.25;
+		backgroundWidth2 = pUI->Nightbackground2.width * WindowWidth / pUI->Nightbackground2.width;
+		backgroundWidth3 = pUI->Nightbackground3.width * WindowWidth / pUI->Nightbackground3.width;
+		backgroundWidth4 = pUI->Nightbackground4.width * WindowWidth / pUI->Nightbackground4.width;
 
-
-
-	DrawTexturePro(pUI->background2, Rectangle{ 0,0,(float)pUI->background2.width, (float)pUI->background2.height }, Rectangle{ scrollingBack2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background2, Rectangle{ 0,0,(float)pUI->background2.width, (float)pUI->background2.height }, Rectangle{ scrollingBack2 + backgroundWidth2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background2, Rectangle{ 0,0,(float)pUI->background2.width, (float)pUI->background2.height }, Rectangle{ scrollingBack2 - backgroundWidth2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-
-
-	DrawTexturePro(pUI->background3, Rectangle{ 0,0,(float)pUI->background3.width, (float)pUI->background3.height }, Rectangle{ scrollingBack3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background3, Rectangle{ 0,0,(float)pUI->background3.width, (float)pUI->background3.height }, Rectangle{ scrollingBack3 + backgroundWidth3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background3, Rectangle{ 0,0,(float)pUI->background3.width, (float)pUI->background3.height }, Rectangle{ scrollingBack3 - backgroundWidth3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack1 + backgroundWidth1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack1 - backgroundWidth1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
 
 
-	DrawTexturePro(pUI->background4, Rectangle{ 0,0,(float)pUI->background4.width, (float)pUI->background4.height }, Rectangle{ scrollingBack4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background4, Rectangle{ 0,0,(float)pUI->background4.width, (float)pUI->background4.height }, Rectangle{ scrollingBack4 + backgroundWidth4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background4, Rectangle{ 0,0,(float)pUI->background4.width, (float)pUI->background4.height }, Rectangle{ scrollingBack4 - backgroundWidth4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack2 + backgroundWidth2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack2 - backgroundWidth2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
 
 
-	DrawTexturePro(pUI->background5, Rectangle{ 0,0,(float)pUI->background5.width, (float)pUI->background5.height }, Rectangle{ scrollingBack5, 0, backgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background5, Rectangle{ 0,0,(float)pUI->background5.width, (float)pUI->background5.height }, Rectangle{ scrollingBack5 + backgroundWidth5, 0, backgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	DrawTexturePro(pUI->background5, Rectangle{ 0,0,(float)pUI->background5.width, (float)pUI->background5.height }, Rectangle{ scrollingBack5 - backgroundWidth5, 0, backgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack3 + backgroundWidth3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack3 - backgroundWidth3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack4 + backgroundWidth4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Nightbackground1, Rectangle{ 0,0,(float)pUI->Nightbackground1.width, (float)pUI->Nightbackground1.height }, Rectangle{ scrollingBack4 - backgroundWidth4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+		DrawTexturePro(pUI->Moon, Rectangle{ 0,0,(float)pUI->Moon.width, (float)pUI->Moon.height }, Rectangle{ scrollingBackSun_Moon - 60, 100, 200, 200 }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+		break;
+	case 1:
+
+		backgroundWidth1 = pUI->Morningbackground1.width * WindowWidth / pUI->Morningbackground1.width + WindowWidth * 0.25;
+		backgroundWidth2 = pUI->Morningbackground2.width * WindowWidth / pUI->Morningbackground2.width;
+		backgroundWidth3 = pUI->Morningbackground3.width * WindowWidth / pUI->Morningbackground3.width;
+		backgroundWidth4 = pUI->Morningbackground4.width * WindowWidth / pUI->Morningbackground4.width;
+
+		DrawTexturePro(pUI->Morningbackground1, Rectangle{ 0,0,(float)pUI->Morningbackground1.width, (float)pUI->Morningbackground1.height }, Rectangle{ scrollingBack1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Morningbackground1, Rectangle{ 0,0,(float)pUI->Morningbackground1.width, (float)pUI->Morningbackground1.height }, Rectangle{ scrollingBack1 + backgroundWidth1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Morningbackground1, Rectangle{ 0,0,(float)pUI->Morningbackground1.width, (float)pUI->Morningbackground1.height }, Rectangle{ scrollingBack1 - backgroundWidth1, 0, backgroundWidth1, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+
+		DrawTexturePro(pUI->Sun, Rectangle{ 0,0,(float)pUI->Sun.width, (float)pUI->Sun.height }, Rectangle{ scrollingBackSun_Moon - 60, 100, 200, 200}, Vector2{ 0,0 }, 0.0f, WHITE);
+
+
+		DrawTexturePro(pUI->Morningbackground2, Rectangle{ 0,0,(float)pUI->Morningbackground2.width, (float)pUI->Morningbackground2.height }, Rectangle{ scrollingBack2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Morningbackground2, Rectangle{ 0,0,(float)pUI->Morningbackground2.width, (float)pUI->Morningbackground2.height }, Rectangle{ scrollingBack2 + backgroundWidth2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Morningbackground2, Rectangle{ 0,0,(float)pUI->Morningbackground2.width, (float)pUI->Morningbackground2.height }, Rectangle{ scrollingBack2 - backgroundWidth2, 0, backgroundWidth2, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+
+		DrawTexturePro(pUI->Morningbackground3, Rectangle{ 0,0,(float)pUI->Morningbackground3.width, (float)pUI->Morningbackground3.height }, Rectangle{ scrollingBack3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Morningbackground3, Rectangle{ 0,0,(float)pUI->Morningbackground3.width, (float)pUI->Morningbackground3.height }, Rectangle{ scrollingBack3 + backgroundWidth3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Morningbackground3, Rectangle{ 0,0,(float)pUI->Morningbackground3.width, (float)pUI->Morningbackground3.height }, Rectangle{ scrollingBack3 - backgroundWidth3, 0, backgroundWidth3, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+
+		DrawTexturePro(pUI->Morningbackground4, Rectangle{ 0,0,(float)pUI->Morningbackground4.width, (float)pUI->Morningbackground4.height }, Rectangle{ scrollingBack4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Morningbackground4, Rectangle{ 0,0,(float)pUI->Morningbackground4.width, (float)pUI->Morningbackground4.height }, Rectangle{ scrollingBack4 + backgroundWidth4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Morningbackground4, Rectangle{ 0,0,(float)pUI->Morningbackground4.width, (float)pUI->Morningbackground4.height }, Rectangle{ scrollingBack4 - backgroundWidth4, 0, backgroundWidth4, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+
+
+	default:
+		break;
+	}
+
+	//DrawTexturePro(pUI->Morningbackground5, Rectangle{ 0,0,(float)pUI->Morningbackground5.width, (float)pUI->Morningbackground5.height }, Rectangle{ scrollingBack5, 0, MorningbackgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+	//DrawTexturePro(pUI->Morningbackground5, Rectangle{ 0,0,(float)pUI->Morningbackground5.width, (float)pUI->Morningbackground5.height }, Rectangle{ scrollingBack5 + MorningbackgroundWidth5, 0, MorningbackgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+	//DrawTexturePro(pUI->Morningbackground5, Rectangle{ 0,0,(float)pUI->Morningbackground5.width, (float)pUI->Morningbackground5.height }, Rectangle{ scrollingBack5 - MorningbackgroundWidth5, 0, MorningbackgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
 
 
 
@@ -263,7 +343,9 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 			if (i < dirtblocks.size() && j < dirtblocks[i].size()) {
 				if (wall[i][j])
 				{
-					DrawTexturePro(pUI->wall, Rectangle{ 0,0, 2048,2048 }, Rectangle{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y, blockWidth , blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+					DrawTexturePro(pUI->wall, Rectangle{ 21,75, 50,50 }, Rectangle{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y, blockWidth , blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+
+					//DrawTexturePro(pUI->wall, Rectangle{ 0,0, 2048,2048 }, Rectangle{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y, blockWidth , blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
 				}
 				if(dirtblocks[i][j])
 					dirtblocks[i][j]->DrawItem(0, Right, Placed);

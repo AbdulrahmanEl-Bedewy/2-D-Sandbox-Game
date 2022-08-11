@@ -24,8 +24,8 @@ class Manager
 	float scrollingBack2;
 	float scrollingBack3;
 	float scrollingBack4;
-	float scrollingBack5;
-	
+	float scrollingBackSun_Moon;
+	bool Day; //day or night
 
 	/*void UpdatePlayer(int WindowWidth, int WindowHeight);*/
 	void UpdateCam(int WindowWidth, int WindowHeight);

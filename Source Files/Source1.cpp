@@ -13,14 +13,21 @@ int main() {
 	UIInfo ui_Info;
 	ui_Info.dirtDes = string{ "Block can be placed" };
 	ui_Info.dirtName = string{ "DirtBlock" };
-	ui_Info.dirtTex = LoadTexture("textures/dirt.png");
-	ui_Info.wall = LoadTexture("textures/Text2.png");
+	ui_Info.dirtTex = LoadTexture("textures/Tiles/Forest/Tiles/Sliced/Tile_14.png"); //LoadTexture("textures / dirt.png");
+	ui_Info.wall = LoadTexture("textures/dirt2_wall.png"); //LoadTexture("textures/Text2.png");
 	ui_Info.player = LoadTexture("textures/NPCSprites/LesanUrchinMan.png");
-	ui_Info.background1 = LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-bg.png");
-	ui_Info.background2 = LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-montain-far.png");
-	ui_Info.background3 = LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-mountains.png");
-	ui_Info.background4 = LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-trees.png");
-	ui_Info.background5 = LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-foreground-trees.png");
+	ui_Info.Morningbackground1 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background1.png");  //LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-bg.png");
+	ui_Info.Morningbackground2 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background2.png");  //LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-montain-far.png");
+	ui_Info.Morningbackground3 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background3.png");	//LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-mountains.png");
+	ui_Info.Morningbackground4 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background3.png");	//LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-trees.png");
+	ui_Info.Sun = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/sun3.png");					//LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-foreground-trees.png");
+	ui_Info.Nightbackground1 = LoadTexture("textures/Backgrounds/background_set/background1.png"); 
+	ui_Info.Nightbackground2 = LoadTexture("textures/Backgrounds/background_set/background2.png");
+	ui_Info.Nightbackground3 = LoadTexture("textures/Backgrounds/background_set/background3.png");
+	ui_Info.Nightbackground4 = LoadTexture("textures/Backgrounds/background_set/background4.png");
+	ui_Info.Moon = LoadTexture("textures/Backgrounds/background_set/Moon.png");
+					
+
 	//ui_Info.blockHeight = /*28*/ 22;
 	//ui_Info.blockWidth = 22;
 
@@ -48,11 +55,16 @@ int main() {
 	UnloadTexture(ui_Info.dirtTex);
 	UnloadTexture(ui_Info.wall);
 	UnloadTexture(ui_Info.player);
-	UnloadTexture(ui_Info.background1);
-	UnloadTexture(ui_Info.background2) ;
-	UnloadTexture(ui_Info.background3);
-	UnloadTexture(ui_Info.background4);
-	UnloadTexture(ui_Info.background5);
+	UnloadTexture(ui_Info.Morningbackground1);
+	UnloadTexture(ui_Info.Morningbackground2) ;
+	UnloadTexture(ui_Info.Morningbackground3);
+	UnloadTexture(ui_Info.Morningbackground4);
+	UnloadTexture(ui_Info.Sun);
+	UnloadTexture(ui_Info.Nightbackground1);
+	UnloadTexture(ui_Info.Nightbackground2);
+	UnloadTexture(ui_Info.Nightbackground3);
+	UnloadTexture(ui_Info.Nightbackground4);
+	UnloadTexture(ui_Info.Moon);
 
 }
 
