@@ -235,7 +235,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 {
 	BeginDrawing();
 	ClearBackground(LIGHTGRAY);
-
+	//BeginScissorMode(0, 0, WindowWidth, WindowHeight);
 	
 
 	float backgroundWidth1;
@@ -319,12 +319,12 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	BeginMode2D(camera);
 
 	
-	Vector2 PlayerPos = player.GetPos();
+	Vector2 CenterPos = GetScreenToWorld2D(Vector2{ WindowWidth / 2.0f,WindowHeight / 2.0f }, camera); //player.GetPos();
 	
 
-	for (int i = ((int)(PlayerPos.y - minPoint.y )/blockHeight)  - WindowHeight /8 ; i < ((int)(PlayerPos.y - minPoint.y) / blockHeight) + WindowHeight / 8 ; i++)
+	for (int i = ((int)(CenterPos.y - minPoint.y )/blockHeight )  - WindowHeight /blockHeight * 0.5 ; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) +3 ; i++)
 	{
-		for (int j = ((int)(PlayerPos.x - minPoint.x) / blockWidth)  - WindowWidth / blockWidth; j < (int)(PlayerPos.x - minPoint.x)/ blockWidth + WindowWidth / blockWidth; j++) // 
+		for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth )  - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x)/ blockWidth + WindowWidth / blockWidth *0.5 ) +3; j++) // 
 		{
 			if (i < dirtblocks.size() && j < dirtblocks[i].size()) {
 				if (wall[i][j])
@@ -355,7 +355,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 
 	DrawFPS(20, 60);
 	player.drawInv();
-
+	//EndScissorMode();
 	EndDrawing();
 }
 
