@@ -18,12 +18,12 @@ Player::Player(UIInfo* pUI)
 	texture = LoadTexture("textures/player/NPCSprites/Conrad.png");
 }
 
-Vector2 Player::getPos()
+Vector2 Player::GetPos() const
 {
 	return pos;
 }
 
-float Player::getSpeedX()
+float Player::GetSpeedX() const
 {
 	return Xspeed;
 }
@@ -31,9 +31,9 @@ float Player::getSpeedX()
 void Player::Update(Manager* pManager)
 {
 	float delta = GetFrameTime();
-	Vector2 minPoint = pManager->getminPoint();
-	Vector2 maxPoint = pManager->getmaxPoint();
-	vector<vector<Dirt*>>::const_iterator dirtblocks = pManager->getDirtBlocks();
+	Vector2 minPoint = pManager->GetMinPoint();
+	Vector2 maxPoint = pManager->GetMaxPoint();
+	vector<vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
 	InAir = true;
 
 
@@ -167,16 +167,19 @@ void Player::Update(Manager* pManager)
 
 	//inventory management
 	inventory.IncrementSelectedPos(-GetMouseWheelMove());
-	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 	{
-		//inventory.UseItem(0);
-		Vector2 coordinate = pManager->GetCoordinate(GetMousePosition());
+		inventory.UseItem(pManager);
+	}
+
+	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
+	{
+		Vector2 coordinate = pManager->GetCoordinateFromScreen(GetMousePosition());
 		if (dirtblocks[coordinate.y][coordinate.x])
 		{
 			dirtblocks[coordinate.y][coordinate.x]->setState(Mined);
 		}
 	}
-
 }
 
 void Player::draw()

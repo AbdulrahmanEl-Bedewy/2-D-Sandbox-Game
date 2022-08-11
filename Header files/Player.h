@@ -24,8 +24,8 @@ class Player
 public:
 	Player(UIInfo* pUI);
 
-	Vector2 getPos();
-	float getSpeedX();
+	Vector2 GetPos() const;
+	float GetSpeedX() const;
 
 	// update player movement and takes care of collisions and picking 
 	void Update(Manager* pManager);

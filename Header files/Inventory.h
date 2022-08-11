@@ -6,6 +6,7 @@ using namespace std;
 
 // forward declaration
 class Item;
+class Manager;
 
 struct Stack {
 	int StackSize; // current stack size
@@ -19,10 +20,14 @@ class Inventory
 	int Size; // size of inventory
 	int MaxStackSize; // max size of a stack (i think should be replace by a const)
 	int SelectedPos;
-	vector<Stack*> fullStacks; 
-	unordered_map<ItemClass,Stack*> Items;
-	
+	bool Expanded;
+	Stack* ItemStacks[5];
+	unordered_map<ItemClass, int> OpenStack;
+
+
 	Stack* getStackFromPos(int p);
+	int GetOpenStackPos();
+	void RemoveStack(int pos);
 
 public:
 	Inventory();
@@ -32,10 +37,9 @@ public:
 
 	void DrawItems();
 
-	void UseItem(int Stackpos);
+	void UseItem(Manager* pManager);
 
 	void IncrementSelectedPos(int increment);
 
 	~Inventory();
 };
-

@@ -2,8 +2,8 @@
 #include <string>
 #include "Defs.h"
 #include "raylib.h"
-#include "Defs.h"
-using namespace std;
+
+class Manager;
 
 class Item {
 protected:
@@ -29,6 +29,8 @@ public:
 	Vector2 GetPos();
 	ItemClass GetItemType();
 	ItemState GetItemState();
+
+	virtual bool UseItem(Manager* pMmanager) = 0;
 
 	//Drawing Functions
 	virtual void DrawItem(/*Vector2 pos, */int rotation, PlayerOrientaion orientation, ItemState State, Vector2 pos = {0,0}) = 0;

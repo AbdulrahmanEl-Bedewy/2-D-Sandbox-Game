@@ -24,7 +24,7 @@ Manager::Manager(UIInfo* p) :player(p)
 
 
 	camera = { 0 };
-	camera.target = Vector2{ player.getPos().x + 20 , player.getPos().y + 20 };;
+	camera.target = Vector2{ player.GetPos().x + 20 , player.GetPos().y + 20 };;
 	camera.offset = Vector2{ 800 / 2.0f, 400 / 2.0f };
 	camera.rotation = 0.0f;
 	camera.zoom = 1;
@@ -43,13 +43,13 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		scrollingBackSun_Moon = 0;
 	}
 
-	if (player.getSpeedX() < 0) {
+	if (player.GetSpeedX() < 0) {
 		scrollingBack1 += 0.1f;
 		scrollingBack2 += 0.2f;
 		scrollingBack3 += 0.7f;
 		scrollingBack4 += 1.0f;
 	}
-	else if (player.getSpeedX() > 0) {
+	else if (player.GetSpeedX() > 0) {
 		scrollingBack1 -= 0.1f;
 		scrollingBack2 -= 0.2f;
 		scrollingBack3 -= 0.7f;
@@ -101,7 +101,7 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 
 void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 {
-	Vector2 pos = player.getPos();
+	Vector2 pos = player.GetPos();
 	camera.target = Vector2{ pos.x + 20 , pos.y + 20 };
 	camera.offset = Vector2{ WindowWidth / 2.0f, WindowHeight / 2.0f };
 	Vector2 max = GetWorldToScreen2D(Vector2{ maxPoint.x, maxPoint.y }, camera);
@@ -113,35 +113,6 @@ void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 }
 
 
-// function by OneLoneCoder
-void PerlinNoise1D(int nCount, float* fSeed, int nOctaves, float fBias, float* fOutput)
-{
-	// Used 1D Perlin Noise
-	for (int x = 0; x < nCount; x++)
-	{
-		float fNoise = 0.0f;
-		float fScaleAcc = 0.0f;
-		float fScale = 1.0f;
-
-		for (int o = 0; o < nOctaves; o++)
-		{
-			int nPitch = nCount >> o;
-			int nSample1 = (x / nPitch) * nPitch;
-			int nSample2 = (nSample1 + nPitch) % nCount;
-
-			float fBlend = (float)(x - nSample1) / (float)nPitch;
-
-			float fSample = (1.0f - fBlend) * fSeed[nSample1] + fBlend * fSeed[nSample2];
-
-			fScaleAcc += fScale;
-			fNoise += fSample * fScale;
-			fScale = fScale / fBias;
-		}
-
-		// Scale to seed range
-		fOutput[x] = fNoise / fScaleAcc;
-	}
-}
 
 
 void Manager::GenerateWorld()
@@ -171,7 +142,7 @@ void Manager::GenerateWorld()
 
 	for (int i = 0; i < WorldHeight /*112*/; i++)
 	{
-		vector<Dirt*> temp;
+		vector<Item*> temp;
 		wall.push_back(vector<int>{});
 		for (int j = 0; j < WorldWidth /*344*/; j++)
 		{
@@ -186,7 +157,7 @@ void Manager::GenerateWorld()
 				wall[i].push_back(1);
 				if (first < 51 && j * blockWidth + minPoint.x > 0) // mined blocks to test picking up 
 				{
-					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
+					Item* d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
 					d->setState(Mined);
 					temp.push_back(d);
 					first++;
@@ -197,7 +168,7 @@ void Manager::GenerateWorld()
 						temp.push_back(NULL);
 					}
 					else {
-						Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
+						Item* d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
 						d->setState(Placed);
 						temp.push_back(d);
 					}
@@ -227,7 +198,7 @@ bool Manager::isSurfaceTile(int row , int column) {
 	if (row == 0 ||column==0)
 		return true;
 	
-	if (!dirtblocks[row-1][column-1])
+	if (!dirtblocks[row-1][column])
 		return true;
 
 	return false;
@@ -235,14 +206,29 @@ bool Manager::isSurfaceTile(int row , int column) {
 
 Vector2 Manager::GetCoordinate(int x, int y)
 {
-	//need fix
-	return Vector2{ (float)((x - minPoint.x)/blockWidth ), (float)((y - minPoint.y) / blockHeight ) };
+	return Vector2{ (float)((int)(x - minPoint.x) / blockWidth), (float)((int)(y - minPoint.y) / blockHeight) };
 }
 
 Vector2 Manager::GetCoordinate(Vector2 p)
 {
+	return  Vector2{ (float)((int)(p.x - minPoint.x) / blockWidth), (float)((int)(p.y - minPoint.y) / blockHeight) };
+}
+
+Vector2 Manager::GetCoordinateFromScreen(int x, int y)
+{
+	//need fix
+	return Vector2{ (float)((int)(x - minPoint.x)/blockWidth ), (float)((int)(y - minPoint.y) / blockHeight ) };
+}
+
+Vector2 Manager::GetCoordinateFromScreen(Vector2 p)
+{
 	p = GetScreenToWorld2D(p, camera);
-	return  Vector2{ (float)((p.x - minPoint.x) / blockWidth ), (float)((p.y - minPoint.y) / blockHeight ) };
+	return  Vector2{ (float)((int)(p.x - minPoint.x) / blockWidth ), (float)((int)(p.y - minPoint.y) / blockHeight ) };
+}
+
+Vector2 Manager::GetWorldXY(Vector2 pos)
+{
+	return GetScreenToWorld2D(pos,camera);
 }
 
 void Manager::Draw(int WindowWidth, int WindowHeight)
@@ -333,7 +319,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	BeginMode2D(camera);
 
 	
-	Vector2 PlayerPos = player.getPos();
+	Vector2 PlayerPos = player.GetPos();
 	
 
 	for (int i = ((int)(PlayerPos.y - minPoint.y )/blockHeight)  - WindowHeight /8 ; i < ((int)(PlayerPos.y - minPoint.y) / blockHeight) + WindowHeight / 8 ; i++)
@@ -373,24 +359,67 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	EndDrawing();
 }
 
+void Manager::AddPickable(int i, int j, Item* item) // might need re-implementation later
+{
+	Pickables[i][j] = item;
+}
+
 void Manager::RemoveBlock(int i, int j)
 {
 	dirtblocks[i][j] = NULL;
 }
 
-Vector2 Manager::getminPoint()
+bool Manager::PlaceBlock(int i, int j, Item* item)
+{
+	if (!dirtblocks[i+1][j] && !dirtblocks[i][j + 1] && !dirtblocks[i - 1][j] && !dirtblocks[i][j - 1]) // cant place tile in space
+		return false;
+	if (item->GetItemType() != Block)
+		return false;
+	if (!dirtblocks[i][j])
+	//{
+	//	dirtblocks[i][j]->setState(Mined);
+	//	//AddPickable(i, j, dirtblocks[i][j]);
+	//	dirtblocks[i][j] = item;
+	//	item->setState(Placed);
+	//}
+	//else
+	{
+		item->setState(Placed);
+		item->setPos(j * blockWidth + minPoint.x, i * blockHeight + minPoint.y);
+		dirtblocks[i][j] = item;
+		return true;
+	}
+	return false;
+}
+
+bool Manager::PlaceBlock(Vector2 pos, Item* item)
+{
+	return PlaceBlock(pos.y,pos.x,item);
+}
+
+Vector2 Manager::GetMinPoint()
 {
 	return minPoint;
 }
 
-Vector2 Manager::getmaxPoint()
+Vector2 Manager::GetMaxPoint()
 {
 	return maxPoint;
 }
 
-vector<vector<Dirt*>>::const_iterator  Manager::getDirtBlocks()
+vector<vector<Item*>>::const_iterator  Manager::GetDirtBlocks()
 {
 	return dirtblocks.begin();
+}
+
+vector<vector<Item*>>::const_iterator Manager::GetPickables()
+{
+	return Pickables.begin();
+}
+
+const Player* Manager::GetPlayer()
+{
+	return &player;
 }
 
 Manager::~Manager()
