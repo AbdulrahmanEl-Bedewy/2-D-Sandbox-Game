@@ -39,10 +39,13 @@ public:
 	void AddPickable(Item* item);
 	void RemoveBlock(int i, int j);
 
+
 	Vector2 getminPoint();
 	Vector2 getmaxPoint();
 	vector<vector<Dirt*>>::const_iterator getDirtBlocks();
 	bool isSurfaceTile(int row, int column);
+	Vector2 GetCoordinate(int x, int y);
+	Vector2 GetCoordinate(Vector2 p);
 
 	~Manager();
 };

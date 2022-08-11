@@ -7,8 +7,8 @@ Manager::Manager(UIInfo* p) :player(p)
 {
 	pUI = p;
 
-	minPoint = Vector2{ -WorldWidth / 2 * pUI->blockWidth ,-WorldHeight / 2 * pUI->blockHeight };
-	maxPoint = Vector2{ WorldWidth / 2 * pUI->blockWidth ,WorldHeight / 2 * pUI->blockHeight };
+	minPoint = Vector2{ -WorldWidth / 2 * blockWidth ,-WorldHeight / 2 * blockHeight };
+	maxPoint = Vector2{ WorldWidth / 2 * blockWidth ,WorldHeight / 2 * blockHeight };
 
 	scrollingBack1 = 0.0f;
 	scrollingBack2 = 0.0f;
@@ -119,50 +119,50 @@ void Manager::GenerateWorld()
 	//PerlinNoise1D(344, fNoiseSeed1D, 4, 0.4, arr); //6, 0.6
 	
 	//for (int i = 0; i < 344; i++) {
-	//	arr[i] = (int)(arr[i] * 800) / 16 * 16;
+	//	arr[i] = (int)(arr[i] * 800) / blockHeight * blockHeight;
 	//}
 	//int test = 0;
 	float smoothness = 320.0f;
-	float modifier = 0.03;
+	float modifier = 0.02; //0.03
 	for (int x = 0; x < WorldWidth; x++) {
 		//if (test % 80 == 0)
 		//	smoothness = 10;
 		//else
 		//	smoothness = 320;
-		arr[x] = (int)(SimplexNoise::noise(x / smoothness, seed)* 600 / 16) * 16;
+		arr[x] = (int)(SimplexNoise::noise(x / smoothness, seed)* 600 / blockHeight) * blockHeight;
 	}
 
 	int first = 0;
 
-	for (int i = 0; i < (maxPoint.y - minPoint.y) / pUI->blockHeight /*112*/; i++)
+	for (int i = 0; i < WorldHeight /*112*/; i++)
 	{
 		vector<Dirt*> temp;
 		wall.push_back(vector<int>{});
-		for (int j = 0; j < (maxPoint.x - minPoint.x) / pUI->blockWidth /*344*/; j++)
+		for (int j = 0; j < WorldWidth /*344*/; j++)
 		{
 			
 			
-			if (i * 16 + minPoint.y < -arr[j]) /*if(j*16 -5000>0)*/
+			if (i * blockHeight + minPoint.y < -arr[j]) /*if(j*blockHeight -5000>0)*/
 			{
 				temp.push_back(NULL);
 				wall[i].push_back(0);
 			}
 			else {
 				wall[i].push_back(1);
-				if (first < 51 && j * 16 + minPoint.x > 0) // mined blocks to test picking up 
+				if (first < 51 && j * blockWidth + minPoint.x > 0) // mined blocks to test picking up 
 				{
-					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * 16 + minPoint.x, (float)i * 16 + minPoint.y });
+					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
 					d->setState(Mined);
 					temp.push_back(d);
 					first++;
 				}
 				else
 				{
-					if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i * 16 + minPoint.y > 100) {
+					if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i * blockHeight + minPoint.y > 100 && i!=155) {
 						temp.push_back(NULL);
 					}
 					else {
-						Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * 16 + minPoint.x, (float)i * 16 + minPoint.y });
+						Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
 						d->setState(Placed);
 						temp.push_back(d);
 					}
@@ -188,7 +188,7 @@ void Manager::GenerateWorld()
 }
 
 bool Manager::isSurfaceTile(int row , int column) {
-	// should be redone when a propper 2D array/vector system is implemented to represent the world
+	// used to determine which tiles should be grass
 	if (row == 0 ||column==0)
 		return true;
 	
@@ -198,10 +198,24 @@ bool Manager::isSurfaceTile(int row , int column) {
 	return false;
 }
 
+Vector2 Manager::GetCoordinate(int x, int y)
+{
+	//need fix
+	return Vector2{ (float)((x - minPoint.x)/blockWidth ), (float)((y - minPoint.y) / blockHeight ) };
+}
+
+Vector2 Manager::GetCoordinate(Vector2 p)
+{
+	p = GetScreenToWorld2D(p, camera);
+	return  Vector2{ (float)((p.x - minPoint.x) / blockWidth ), (float)((p.y - minPoint.y) / blockHeight ) };
+}
+
 void Manager::Draw(int WindowWidth, int WindowHeight)
 {
 	BeginDrawing();
 	ClearBackground(LIGHTGRAY);
+
+	
 
 	float backgroundWidth1 = pUI->background1.width * WindowWidth / pUI->background1.width + WindowWidth * 0.25;
 	float backgroundWidth2 = pUI->background2.width * WindowWidth / pUI->background2.width;
@@ -242,14 +256,14 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	Vector2 PlayerPos = player.getPos();
 	
 
-	for (int i = ((int)(PlayerPos.y - minPoint.y )/16)  - WindowHeight /8 ; i < ((int)(PlayerPos.y - minPoint.y) / 16) + WindowHeight / 8 ; i++)
+	for (int i = ((int)(PlayerPos.y - minPoint.y )/blockHeight)  - WindowHeight /8 ; i < ((int)(PlayerPos.y - minPoint.y) / blockHeight) + WindowHeight / 8 ; i++)
 	{
-		for (int j = ((int)(PlayerPos.x - minPoint.x) / 16)  - WindowWidth / 16 ; j < (int)(PlayerPos.x - minPoint.x)/16  + WindowWidth / 16 ; j++) // 
+		for (int j = ((int)(PlayerPos.x - minPoint.x) / blockWidth)  - WindowWidth / blockWidth; j < (int)(PlayerPos.x - minPoint.x)/ blockWidth + WindowWidth / blockWidth; j++) // 
 		{
 			if (i < dirtblocks.size() && j < dirtblocks[i].size()) {
 				if (wall[i][j])
 				{
-					DrawTexturePro(pUI->wall, Rectangle{ 0,0, 2048,2048 }, Rectangle{ (float)j * 16 + minPoint.x, (float)i * 16 + minPoint.y, pUI->blockWidth , pUI->blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+					DrawTexturePro(pUI->wall, Rectangle{ 0,0, 2048,2048 }, Rectangle{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y, blockWidth , blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
 				}
 				if(dirtblocks[i][j])
 					dirtblocks[i][j]->DrawItem(0, Right, Placed);
@@ -271,6 +285,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	player.draw();
 	EndMode2D();
 
+	DrawFPS(20, 60);
 	player.drawInv();
 
 	EndDrawing();

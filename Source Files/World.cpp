@@ -10,8 +10,8 @@
 World::World(UIInfo* p)
 {
 	pUI = p;
-	minPoint = Vector2{ -WorldWidth / 2 * pUI->blockWidth ,-WorldHeight / 2 * pUI->blockHeight };
-	maxPoint = Vector2{ WorldWidth / 2 * pUI->blockWidth ,WorldHeight / 2 * pUI->blockHeight };
+	minPoint = Vector2{ -WorldWidth / 2 * blockWidth ,-WorldHeight / 2 * blockHeight };
+	maxPoint = Vector2{ WorldWidth / 2 * blockWidth ,WorldHeight / 2 * blockHeight };
 }
 
 void World::GenerateWorld()
@@ -24,7 +24,7 @@ void World::GenerateWorld()
 	//PerlinNoise1D(344, fNoiseSeed1D, 4, 0.4, arr); //6, 0.6
 
 	//for (int i = 0; i < 344; i++) {
-	//	arr[i] = (int)(arr[i] * 800) / 16 * 16;
+	//	arr[i] = (int)(arr[i] * 800) / blockHeight * blockHeight;
 	//}
 	//int test = 0;
 	float smoothness = 320.0f;
@@ -33,7 +33,7 @@ void World::GenerateWorld()
 		//	smoothness = 10;
 		//else
 		//	smoothness = 320;
-		arr[x] = (int)(SimplexNoise::noise(x / smoothness, seed) * 600 / 16) * 16;
+		arr[x] = (int)(SimplexNoise::noise(x / smoothness, seed) * 600 / blockHeight) * blockHeight;
 	}
 
 	int first = 0;
@@ -43,19 +43,19 @@ void World::GenerateWorld()
 		vector<Dirt*> temp;
 		for (int j = 0; j < WorldWidth /*344*/; j++)
 		{
-			if (i * 16 + minPoint.y < -arr[j]) /*if(j*16 -5000>0)*/
+			if (i * blockHeight + minPoint.y < -arr[j]) /*if(j*blockHeight -5000>0)*/
 				temp.push_back(NULL);
 			else
-				if (first < 51 && j * 16 + minPoint.x > 0) // mined blocks to test picking up 
+				if (first < 51 && j * blockHeight + minPoint.x > 0) // mined blocks to test picking up 
 				{
-					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * 16 + minPoint.x, (float)i * 16 + minPoint.y });
+					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * blockHeight + minPoint.x, (float)i * blockHeight + minPoint.y });
 					d->setState(Mined);
 					temp.push_back(d);
 					first++;
 				}
 				else
 				{
-					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * 16 + minPoint.x, (float)i * 16 + minPoint.y });
+					Dirt* d = new Dirt(pUI, Block, Vector2{ (float)j * blockHeight + minPoint.x, (float)i * blockHeight + minPoint.y });
 					d->setState(Placed);
 					temp.push_back(d);
 				}

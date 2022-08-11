@@ -18,16 +18,23 @@ class Inventory
 {
 	int Size; // size of inventory
 	int MaxStackSize; // max size of a stack (i think should be replace by a const)
+	int SelectedPos;
 	vector<Stack*> fullStacks; 
 	unordered_map<ItemClass,Stack*> Items;
 	
+	Stack* getStackFromPos(int p);
 
 public:
 	Inventory();
 
 	// adds items to inventory. True if added False if storage full
 	bool Insert(Item* item);
+
 	void DrawItems();
+
+	void UseItem(int Stackpos);
+
+	void IncrementSelectedPos(int increment);
 
 	~Inventory();
 };

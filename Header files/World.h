@@ -7,6 +7,8 @@ using namespace std;
 class Dirt;
 struct UIInfo;
 
+// class not used yet in manager.
+
 class World
 {
 	vector<vector<Dirt*>> Blocks;

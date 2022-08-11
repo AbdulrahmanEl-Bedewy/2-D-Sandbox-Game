@@ -5,6 +5,8 @@ using namespace std;
 
 #define WorldWidth 1500 // in blocks
 #define WorldHeight 156 //in blocks
+#define blockWidth 18
+#define blockHeight 18
 #define SectorWidth 2000
 
 enum ItemClass
@@ -43,6 +45,4 @@ struct UIInfo
 	Texture2D background3;
 	Texture2D background4;
 	Texture2D background5;
-	float blockWidth;
-	float blockHeight;
 };

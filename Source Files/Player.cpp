@@ -6,7 +6,7 @@ using namespace std;
 
 Player::Player(UIInfo* pUI)
 {
-	pos = Vector2{ 0,-700};
+	pos = Vector2{ 0,-900};
 	Xspeed = 0;
 	Yspeed = 100;
 	walkFrame = 0;
@@ -36,49 +36,6 @@ void Player::Update(Manager* pManager)
 	vector<vector<Dirt*>>::const_iterator dirtblocks = pManager->getDirtBlocks();
 	InAir = true;
 
-	// check for collisions for picking items and not falling
-	for (int i = ((int)(pos.y - minPoint.y) / 16) - 1; i < ((int)(pos.y - minPoint.y) / 16) + 6; i++)
-	{
-		bool br = false;
-		for (int j = ((int)(pos.x - minPoint.x) / 16) - 4; j < (int)(pos.x - minPoint.x) / 16 + 4; j++) // 
-		{
-			if (i>0 && j > 0 &&i < WorldHeight && j < WorldWidth && dirtblocks[i][j]) {
-			
-				Vector2 dirtpos = dirtblocks[i][j]->GetPos();
-				
-				if (CheckCollisionRecs(Rectangle{ pos.x + 12 ,pos.y,17,64 }, Rectangle{ dirtpos.x, dirtpos.y , pUI->blockWidth, pUI->blockWidth })) {
-					
-					if (dirtblocks[i][j]->GetItemState() == Mined) { // picking action
-					
-						if (inventory.Insert(dirtblocks[i][j])) {
-							dirtblocks[i][j]->setState(Picked);
-							pManager->RemoveBlock(i, j);
-						}
-				
-					}
-					else {
-						InAir = false;
-						Yspeed = 0;
-						pos.y = dirtpos.y - 63;
-						br = true;
-						break;
-					}
-				}
-			}
-		}
-		if (br)
-			break;
-	}
-
-
-	// movement
-
-	if (IsKeyPressed(KEY_SPACE) && !InAir ) {
-		Yspeed = -400;
-		InAir = true;
-	}
-
-
 
 	if (IsKeyDown(KEY_D)) {
 		Xspeed = 400;
@@ -102,6 +59,84 @@ void Player::Update(Manager* pManager)
 		Xspeed = 0;
 		isWalking = false;
 	}
+
+	// check for collisions for picking items and not falling 
+	// collision problem : always float to top of any wall even if height of wall is higher than a step 
+	for (int i = ((int)(pos.y - minPoint.y) / blockHeight) - 1; i < ((int)(pos.y - minPoint.y) / blockHeight) + 6; i++)
+	{
+		bool br = false;
+		for (int j = ((int)(pos.x - minPoint.x) / blockHeight) - 4; j < (int)(pos.x - minPoint.x) / blockHeight + 4; j++) // 
+		{
+			if (i>0 && j > 0 &&i < WorldHeight && j < WorldWidth && dirtblocks[i][j]) {
+			
+				Vector2 dirtpos = dirtblocks[i][j]->GetPos();
+				
+				if (CheckCollisionRecs(Rectangle{ pos.x + 12 + Xspeed * delta ,pos.y + Yspeed * delta,17,64 }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {
+					
+					if (dirtblocks[i][j]->GetItemState() == Mined) { // picking action
+					
+						if (inventory.Insert(dirtblocks[i][j])) {
+							dirtblocks[i][j]->setState(Picked);
+							pManager->RemoveBlock(i, j);
+						}
+				
+					}
+					else {
+
+
+						if (Xspeed != 0 && dirtpos.y - pos.y > 2* blockHeight) {
+							pos.y -= pos.y + 63 - dirtpos.y;
+						}
+						/*else*/ 
+						if (Xspeed > 0 && dirtpos.y - pos.y < 2* blockHeight && dirtpos.x > pos.x+12)
+						{
+							Xspeed = 0;
+							pos.x = dirtpos.x -29;
+							isWalking = false;
+						}
+						if (Xspeed < 0 && dirtpos.y - pos.y < 2 * blockHeight && dirtpos.x < pos.x + 12) {
+							Xspeed = 0;
+							pos.x = dirtpos.x + blockWidth - 12;
+							isWalking = false;
+						}
+						if (Yspeed < 0 && dirtpos.y < pos.y  && dirtpos.x < pos.x + 29 && dirtpos.x + blockHeight > pos.x + 12) {
+							Yspeed = 0;
+							pos.y = dirtpos.y + blockHeight;
+						}
+						if (InAir && dirtpos.y - pos.y > 64 - 10 && dirtpos.x < pos.x + 29 && dirtpos.x + blockHeight > pos.x + 12) {
+							InAir = false;
+							Yspeed = 0;
+							pos.y = dirtpos.y - 63;
+							br = true;
+						}
+						
+						/*InAir = false;
+						Yspeed = 0;
+						pos.y = dirtpos.y - 63;
+						br = true;
+						break;*/
+					}
+				}
+			}
+		}
+		if (br)
+			break;
+		else
+		{
+			InAir = true;
+		}
+	}
+
+
+	// movement
+
+	if (IsKeyPressed(KEY_SPACE) && !InAir ) {
+		Yspeed = -400;
+		InAir = true;
+	}
+
+
+
 
 	if (InAir)
 	{
@@ -129,6 +164,19 @@ void Player::Update(Manager* pManager)
 		pos.x = 70;
 		pos.y = -700;
 	}
+
+	//inventory management
+	inventory.IncrementSelectedPos(-GetMouseWheelMove());
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	{
+		//inventory.UseItem(0);
+		Vector2 coordinate = pManager->GetCoordinate(GetMousePosition());
+		if (dirtblocks[coordinate.y][coordinate.x])
+		{
+			dirtblocks[coordinate.y][coordinate.x]->setState(Mined);
+		}
+	}
+
 }
 
 void Player::draw()

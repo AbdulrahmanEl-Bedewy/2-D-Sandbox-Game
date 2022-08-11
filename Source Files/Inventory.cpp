@@ -3,15 +3,16 @@
 
 Inventory::Inventory()
 {
-	Size = 50;
+	Size = 5;
 	MaxStackSize = 10;
+	SelectedPos = 0;
 }
 
 bool Inventory::Insert(Item* item)
 {
-	if(Items.size() == Size) // full storage
+	if(fullStacks.size() == Size) // full storage
 		return false;
-	if (Items.find(item->GetItemType()) == Items.end()) { //  first time picking this item
+	if (Items.find(item->GetItemType()) == Items.end()) { //  first time picking this item OR first un-filled stack
 		Stack* s = new Stack{ 0 };
 		s->StackSize = 1;
 		s->stackPos = Items.size() + fullStacks.size() + 1;
@@ -21,13 +22,9 @@ bool Inventory::Insert(Item* item)
 	}
 	else if(Items.find(item->GetItemType())->second->StackSize == MaxStackSize) // alraedy full stack
 	{
-		Stack* s = new Stack{ 0 };
-		s->StackSize = 1;
-		s->stackPos = Items.size() + fullStacks.size() + 1;
-		s->items.push_back(item);
 		fullStacks.push_back(Items.find(item->GetItemType())->second);
-		Items.find(item->GetItemType())->second = s;
-		return true;
+		Items.erase(item->GetItemType());
+		return Insert(item);
 	}
 	else
 	{
@@ -42,7 +39,12 @@ void Inventory::DrawItems()
 {
 	for (int i = 0; i < 10; i++)
 	{
-		DrawRectangle(10 + i * 35 + i * 5, 30, 35, 35, Fade(BLUE, 0.3));
+		if (i== SelectedPos)
+			DrawRectangle(10 + i * 35 + i * 5, 30, 35, 35, Fade(GOLD, 0.5));
+		else
+			DrawRectangle(10 + i * 35 + i * 5, 30, 35, 35, Fade(BLUE, 0.3));
+		DrawText(TextFormat("%d", i), 10.0f + i * 35 + i * 5 , 30, 9, WHITE);
+
 	}
 
 	for (size_t i = 0; i < fullStacks.size(); i++)
@@ -53,6 +55,7 @@ void Inventory::DrawItems()
 		fullStacks[i]->items[0]->DrawItem(0, Right, Picked, Vector2{ 10.0f + itemspos * 35 + itemspos * 5 + 17.5f - 8, 30 + 17.5 - 8 });
 		DrawText(TextFormat("%d", MaxStackSize), 10.0f + itemspos * 35 + itemspos * 5 + 30 - MeasureText(TextFormat("%d", MaxStackSize), 15), 50, 15, WHITE);
 	}
+
 	
 	for (auto i = Items.begin(); i != Items.end(); i++)
 	{
@@ -64,15 +67,32 @@ void Inventory::DrawItems()
 	}
 }
 
+void Inventory::UseItem(int Stackpos)
+{
+}
+
+void Inventory::IncrementSelectedPos(int increment)
+{
+	SelectedPos = (SelectedPos + increment < 0)? 9 : (SelectedPos + increment) % 10;
+}
+
 Inventory::~Inventory()
 {
 	for (size_t i = 0; i < fullStacks.size(); i++)
 	{
+		for (int j = 0; j < fullStacks[i]->items.size(); j++)
+		{
+			delete fullStacks[i]->items[j];
+		}
 		delete fullStacks[i];
 	}
 
 	for (auto i = Items.begin(); i != Items.end(); i++)
 	{
+		for (int j = 0; j < i->second->items.size(); j++)
+		{
+			delete i->second->items[j];
+		}
 		delete i->second;
 	}
 }
