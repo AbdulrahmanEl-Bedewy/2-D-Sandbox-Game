@@ -21,8 +21,8 @@ class Inventory
 	int MaxStackSize; // max size of a stack (i think should be replace by a const)
 	int SelectedPos;
 	bool Expanded;
-	Stack* ItemStacks[5];
-	unordered_map<ItemClass, int> OpenStack;
+	Stack* ItemStacks[25];
+	unordered_map<ItemClass, vector<int>> OpenStack;
 
 
 	Stack* getStackFromPos(int p);
@@ -40,6 +40,7 @@ public:
 	void UseItem(Manager* pManager);
 
 	void IncrementSelectedPos(int increment);
+	void ToggleExpanded();
 
 	~Inventory();
 };

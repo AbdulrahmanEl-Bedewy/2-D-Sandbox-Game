@@ -180,6 +180,10 @@ void Player::Update(Manager* pManager)
 			dirtblocks[coordinate.y][coordinate.x]->setState(Mined);
 		}
 	}
+
+	if (IsKeyPressed(KEY_ENTER)) {
+		inventory.ToggleExpanded();
+	}
 }
 
 void Player::draw()

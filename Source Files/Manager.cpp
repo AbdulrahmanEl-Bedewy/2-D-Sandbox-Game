@@ -36,7 +36,7 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 	player.Update(this);
 	UpdateCam(WindowWidth, WindowHeight);
 
-	scrollingBackSun_Moon += 10* GetFrameTime();
+	scrollingBackSun_Moon += 5* GetFrameTime();
 	if (scrollingBackSun_Moon >= 1600)
 	{
 		Day = !Day;
