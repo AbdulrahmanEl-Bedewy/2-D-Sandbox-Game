@@ -30,7 +30,15 @@ void Dirt::UpdateItem(Manager* pManager)
 				if (i > 0 && j > 0 && i < WorldHeight && j < WorldWidth && dirtblocks[i][j]) {
 
 					Vector2 dirtpos = dirtblocks[i][j]->GetPos();
-					if (dirtpos.y > pos.y &&  CheckCollisionRecs(Rectangle{ pos.x ,pos.y ,blockWidth,blockHeight }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {
+					if (dirtpos.y > pos.y &&  CheckCollisionRecs(Rectangle{ pos.x ,pos.y + Yspeed * min(GetFrameTime(), 0.05f) ,blockWidth,blockHeight }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {
+					
+						Vector2 tempPos1 = pManager->GetCoordinate(pos);
+						Vector2 tempPos2 = pManager->GetCoordinate(pos.x, dirtpos.y - blockHeight + 1);
+						if (tempPos1.y < tempPos2.y) { // if block changes coordinate while falling
+							pManager->RemovePickable(tempPos1.y, tempPos1.x, this);	 // move its position in the pickables list    /*pManager->GetCoordinate(pos).y, pManager->GetCoordinate(pos).x*/
+							pManager->AddPickable(tempPos2.y, tempPos2.x, this);  //pManager->GetCoordinate(pos.x,pos.y + Yspeed * min(GetFrameTime(),0.05f)).y, pManager->GetCoordinate(pos).x
+						}
+
 						Yspeed = 0;
 						pos.y = dirtpos.y - blockHeight + 1;
 						br = true;
@@ -45,9 +53,11 @@ void Dirt::UpdateItem(Manager* pManager)
 		if(!br)
 			Yspeed = (Yspeed + 100 * GetFrameTime() > 150) ? 150 : Yspeed + 100 * min(GetFrameTime(),0.05f);
 
-		if (pManager->GetCoordinate(pos).y < pManager->GetCoordinate(pos.x, pos.y + Yspeed * min(GetFrameTime(),0.05f)).y) { // if block changes coordinate while falling
-			pManager->RemovePickable(pManager->GetCoordinate(pos).y, pManager->GetCoordinate(pos).x, this);	 // move its position in the pickables list
-			pManager->AddPickable(pManager->GetCoordinate(pos.x,pos.y + Yspeed * min(GetFrameTime(),0.05f)).y, pManager->GetCoordinate(pos).x, this);
+		Vector2 tempPos1 = pManager->GetCoordinate(pos);
+		Vector2 tempPos2 = pManager->GetCoordinate(pos.x, pos.y + Yspeed * min(GetFrameTime(), 0.05f));
+		if ( tempPos1.y < tempPos2.y ) { // if block changes coordinate while falling
+			pManager->RemovePickable(tempPos1.y,tempPos1.x , this);	 // move its position in the pickables list    /*pManager->GetCoordinate(pos).y, pManager->GetCoordinate(pos).x*/
+			pManager->AddPickable(tempPos2.y, tempPos2.x, this);  //pManager->GetCoordinate(pos.x,pos.y + Yspeed * min(GetFrameTime(),0.05f)).y, pManager->GetCoordinate(pos).x
 		}
 		pos.y += Yspeed * min(GetFrameTime(), 0.05f);
 	}

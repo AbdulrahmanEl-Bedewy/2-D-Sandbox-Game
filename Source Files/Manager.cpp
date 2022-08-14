@@ -352,7 +352,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	//DrawTexturePro(pUI->Morningbackground5, Rectangle{ 0,0,(float)pUI->Morningbackground5.width, (float)pUI->Morningbackground5.height }, Rectangle{ scrollingBack5 + MorningbackgroundWidth5, 0, MorningbackgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
 	//DrawTexturePro(pUI->Morningbackground5, Rectangle{ 0,0,(float)pUI->Morningbackground5.width, (float)pUI->Morningbackground5.height }, Rectangle{ scrollingBack5 - MorningbackgroundWidth5, 0, MorningbackgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
 
-	player.drawInv();
+
 
 
 	BeginMode2D(camera);
@@ -402,6 +402,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	player.draw();
 	EndMode2D();
 
+	player.drawInv();
 	DrawFPS(WindowWidth-70, 20);
 	//EndScissorMode();
 	EndDrawing();
@@ -413,8 +414,8 @@ void Manager::DrawBackground(int WindowWidth, int WindowHeight)
 
 void Manager::AddPickable(int i, int j, Item* item) // might need re-implementation later
 {
-	Pickables[i][j].push_back(item);
-	
+	if(find(Pickables[i][j].begin(), Pickables[i][j].end(),item) == Pickables[i][j].end())
+		Pickables[i][j].push_back(item);	
 }
 
 void Manager::RemovePickable(int i, int j, Item* item)
@@ -424,6 +425,7 @@ void Manager::RemovePickable(int i, int j, Item* item)
 		for (vector<Item*>::iterator k = Pickables[i][j].begin(); k != Pickables[i][j].end(); k++)
 		{
 			if (*k == item) {
+				*k = nullptr;
 				Pickables[i][j].erase(k);
 				break;
 			}
