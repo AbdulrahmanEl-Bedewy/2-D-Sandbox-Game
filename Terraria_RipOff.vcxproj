@@ -149,6 +149,7 @@
     <ClCompile Include="Source Files\Player.cpp" />
     <ClCompile Include="Source Files\Source.cpp" />
     <ClCompile Include="Source Files\Source1.cpp" />
+    <ClCompile Include="Source Files\Sword.cpp" />
     <ClCompile Include="Source Files\World.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -159,6 +160,7 @@
     <ClInclude Include="Header files\Item.h" />
     <ClInclude Include="Header files\Manager.h" />
     <ClInclude Include="Header files\Player.h" />
+    <ClInclude Include="Header files\Sword.h" />
     <ClInclude Include="Header files\World.h" />
     <ClInclude Include="SimpleNoise\SimplexNoise.h" />
   </ItemGroup>

@@ -48,6 +48,9 @@
     <ClCompile Include="Source Files\Bow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source Files\Sword.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header files\Defs.h">
@@ -75,6 +78,9 @@
       <Filter>Resource Files\SimpleNoise</Filter>
     </ClInclude>
     <ClInclude Include="Header files\Bow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Header files\Sword.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

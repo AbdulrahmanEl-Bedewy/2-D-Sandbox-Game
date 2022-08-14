@@ -1,7 +1,6 @@
 #pragma once
 #include "Item.h"
-
-class Bow :
+class Sword :
     public Item
 {
     float Damage;
@@ -11,7 +10,7 @@ class Bow :
     bool animate;
     float Yspeed;
 public:
-    Bow(UIInfo* p, Vector2 position);
+    Sword(UIInfo* p, Vector2 position);
 
     virtual void UpdateItem(Manager* pMmanager);
     virtual void DrawItem(int rotation, PlayerOrientaion orientation, ItemState State, Vector2 pos = { 0,0 });

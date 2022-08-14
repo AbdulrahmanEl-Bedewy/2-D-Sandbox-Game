@@ -42,6 +42,7 @@ struct UIInfo
 	Texture2D player;
 	Texture2D mob;
 	Texture2D Bow;
+	Texture2D Sword;
 	Texture2D Morningbackground1;
 	Texture2D Morningbackground2;
 	Texture2D Morningbackground3;

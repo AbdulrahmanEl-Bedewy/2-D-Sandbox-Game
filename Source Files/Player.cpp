@@ -1,5 +1,7 @@
 #include "../Header files/Player.h"
 #include "../Header files/Manager.h"
+#include "../Header files/Bow.h"
+#include "../Header files/Sword.h"
 #include <vector>
 using namespace std;
 
@@ -16,6 +18,8 @@ Player::Player(UIInfo* pUI): inventory(pUI)
 	InAir = false;
 	this->pUI = pUI;
 	texture = LoadTexture("textures/player/NPCSprites/Conrad.png");
+	inventory.Insert(new Bow(pUI, Vector2{ 0,50 }));
+	inventory.Insert(new Sword(pUI, Vector2{ 0,50 }));
 }
 
 Vector2 Player::GetPos() const

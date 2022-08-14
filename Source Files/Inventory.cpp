@@ -11,7 +11,6 @@ Inventory::Inventory(UIInfo* p /* for testing*/)
 	SelectedPos = 0;
 	Expanded = false;
 	for (int i = 0; i < 25; i++) ItemStacks[i] = nullptr;
-	Insert(new Bow(p, Vector2{ 0,50 }));
 }
 
 Stack* Inventory::getStackFromPos(int p)
@@ -107,7 +106,7 @@ void Inventory::DrawItems(PlayerOrientaion Orientation)
 			if (i == SelectedPos)
 				DrawRectangle(10 + i * 35 + i * 5, 30, 35, 35, Fade(GOLD, 0.5));
 			else
-				DrawRectangle(10 + i * 35 + i * 5, 30, 35, 35, Fade(BLUE, 0.8));
+				DrawRectangle(10 + i * 35 + i * 5, 30, 35, 35, Fade(BLUE, 0.9));
 			DrawText(TextFormat("%d", i), 10.0f + i * 35 + i * 5, 30, 9, WHITE);
 
 		}
@@ -134,7 +133,7 @@ void Inventory::DrawItems(PlayerOrientaion Orientation)
 			if (i == SelectedPos)
 				DrawRectangle(10 + i % 10 * 35 + i % 10 * 5, 30 + i / 10 * 40, 35, 35, Fade(GOLD, 0.5));
 			else
-				DrawRectangle(10 + i % 10 * 35 + i % 10 * 5, 30 + i / 10 * 40, 35, 35, Fade(BLUE, 0.3));
+				DrawRectangle(10 + i % 10 * 35 + i % 10 * 5, 30 + i / 10 * 40, 35, 35, Fade(BLUE, 0.9));
 
 
 			if (i < 10) {
@@ -149,7 +148,7 @@ void Inventory::DrawItems(PlayerOrientaion Orientation)
 				int y = 30;
 				int itemspos = ItemStacks[i]->stackPos;
 
-				ItemStacks[i]->items[0]->DrawItem(0, Right, Picked, Vector2{ 10.0f + itemspos % 10 * 35 + itemspos % 10 * 5 + 17.5f - 8, 30 + itemspos/10 *40 + 17.5f - 8 });
+				ItemStacks[i]->items[0]->DrawItem(0, Orientation, Picked, Vector2{ 10.0f + itemspos % 10 * 35 + itemspos % 10 * 5 + 17.5f - 8, 30 + itemspos/10 *40 + 17.5f - 8 });
 				DrawText(TextFormat("%d", ItemStacks[i]->StackSize), 10.0f + itemspos % 10 * 35 + itemspos % 10 * 5 + 30 - MeasureText(TextFormat("%d", MaxStackSize), 15), 50 + itemspos / 10 * 40, 15, WHITE);
 			}
 		}

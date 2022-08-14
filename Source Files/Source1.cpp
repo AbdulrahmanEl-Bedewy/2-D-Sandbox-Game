@@ -27,6 +27,7 @@ int main() {
 	ui_Info.Nightbackground4 = LoadTexture("textures/Backgrounds/background_set/background4.png");
 	ui_Info.Moon = LoadTexture("textures/Backgrounds/background_set/Moon.png");
 	ui_Info.Bow = LoadTexture("textures/player/lpc_entry/Weapons/WEAPON_bow.png");
+	ui_Info.Sword = LoadTexture("textures/player/lpc_entry/Weapons/WEAPON_longsword.png");
 
 	/*Camera2D camera;
 	camera = { 0 };
