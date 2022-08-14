@@ -8,6 +8,7 @@ using namespace std;
 #define blockWidth 18
 #define blockHeight 18
 #define SectorWidth 2000
+#define MaxStackSize 10
 
 enum ItemClass
 {
@@ -40,6 +41,7 @@ struct UIInfo
 	Texture2D wall;
 	Texture2D player;
 	Texture2D mob;
+	Texture2D Bow;
 	Texture2D Morningbackground1;
 	Texture2D Morningbackground2;
 	Texture2D Morningbackground3;

@@ -9,7 +9,51 @@ Dirt::Dirt(UIInfo* p, ItemClass IC, Vector2 position)
 	pUI = p;
 	itemClass = IC;
 	pos = position;
+	Yspeed = 0;
 	itemstate = Placed;
+}
+
+void Dirt::UpdateItem(Manager* pManager)
+{
+	Vector2 minPoint = pManager->GetMinPoint();
+	Vector2 maxPoint = pManager->GetMaxPoint();
+	vector<vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
+
+
+	if (itemstate == Mined) {
+		bool br = false;
+		for (int i = ((int)(pos.y - minPoint.y) / blockHeight) - 1; i < ((int)(pos.y - minPoint.y) / blockHeight) + 6; i++)
+		{
+			bool br = false;
+			for (int j = ((int)(pos.x - minPoint.x) / blockHeight) - 4; j < (int)(pos.x - minPoint.x) / blockHeight + 4; j++) // 
+			{
+				if (i > 0 && j > 0 && i < WorldHeight && j < WorldWidth && dirtblocks[i][j]) {
+
+					Vector2 dirtpos = dirtblocks[i][j]->GetPos();
+					if (dirtpos.y > pos.y &&  CheckCollisionRecs(Rectangle{ pos.x ,pos.y ,blockWidth,blockHeight }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {
+						Yspeed = 0;
+						pos.y = dirtpos.y - blockHeight + 1;
+						br = true;
+						break;
+					} 
+				}
+			}
+			if (br)
+				break;
+			
+		}
+		if(!br)
+			Yspeed = (Yspeed + 100 * GetFrameTime() > 150) ? 150 : Yspeed + 100 * min(GetFrameTime(),0.05f);
+
+		if (pManager->GetCoordinate(pos).y < pManager->GetCoordinate(pos.x, pos.y + Yspeed * min(GetFrameTime(),0.05f)).y) { // if block changes coordinate while falling
+			pManager->RemovePickable(pManager->GetCoordinate(pos).y, pManager->GetCoordinate(pos).x, this);	 // move its position in the pickables list
+			pManager->AddPickable(pManager->GetCoordinate(pos.x,pos.y + Yspeed * min(GetFrameTime(),0.05f)).y, pManager->GetCoordinate(pos).x, this);
+		}
+		pos.y += Yspeed * min(GetFrameTime(), 0.05f);
+	}
+	
+	if(itemstate == Onhand)
+		pos = pManager->GetScreenXY(pManager->GetPlayer()->GetPos());
 }
 
 // to-do later
@@ -18,13 +62,26 @@ void Dirt::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State,
 	switch (itemstate)
 	{
 	case Onhand:
-		DrawTextureEx(pUI->dirtTex, pos, rotation, 1.0, WHITE);
+		if (orientation == Left)
+		{
+			pos.y += 32;
+			DrawTextureEx(pUI->dirtTex, pos, rotation, 1.0, WHITE);
+		}
+		else
+		{
+			pos.y += 32;
+			pos.x += 29;
+			DrawTextureEx(pUI->dirtTex, pos, rotation, 1.0, WHITE);
+		}
+		
+		DrawTextureRec(pUI->dirtTex, Rectangle{ 0, 3, blockWidth  , blockHeight }, Invpos, Fade(BROWN, 0.5));
 		break;
 	case Placed:
 		DrawTextureRec(pUI->dirtTex, Rectangle{ 0,0 , 16 , 16 }, pos, WHITE); //for tile option 2	//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,/*64*/ 3, blockWidth , blockHeight }, pos, /*WHITE*/Color{ 215, 162, 125, 255 });
 		break;
 	case Mined:
 		DrawTexturePro(pUI->dirtTex, Rectangle{ 0, 0, 16 , 16 }, Rectangle{ pos.x + 2.5f,pos.y + 2.5f, blockWidth - 5 , blockHeight - 5 }, Vector2{ 0, 0 }, 0.0f, WHITE);
+		//DrawTextureEx(pUI->dirtTex, pos, rotation, 1.0, WHITE);
 		break;
 	case Picked:
 		DrawTextureRec(pUI->dirtTex, Rectangle{ 0, 3, blockWidth  , blockHeight }, Invpos, Fade(BROWN,0.5));
@@ -34,8 +91,9 @@ void Dirt::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State,
 	}
 }
 
-void Dirt::DrawText(Vector2 pos)
+void Dirt::DrawName(Vector2 pos)
 {
+	DrawText(pUI->dirtName.c_str(), pos.x - MeasureText(pUI->dirtName.c_str(), 20)/2, 5, 20, WHITE);
 }
 
 bool Dirt::UseItem(Manager* pMmanager)

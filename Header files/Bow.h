@@ -1,12 +1,16 @@
 #pragma once
 #include "Item.h"
-
-class Dirt :
+class Bow :
     public Item
 {
+    float Damage;
+    int FireSpeed;
+    float timer;
+    int frame;
+    bool animate;
     float Yspeed;
 public:
-    Dirt(UIInfo* p, ItemClass itemclass, Vector2 position);
+    Bow(UIInfo* p, Vector2 position);
 
     virtual void UpdateItem(Manager* pMmanager);
     virtual void DrawItem(int rotation, PlayerOrientaion orientation, ItemState State, Vector2 pos = { 0,0 });
@@ -14,3 +18,4 @@ public:
 
     virtual bool UseItem(Manager* pMmanager);
 };
+

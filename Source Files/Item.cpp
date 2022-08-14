@@ -35,9 +35,6 @@ ItemState Item::GetItemState()
 	return itemstate;
 }
 
-void Item::DrawText(Vector2 pos)
-{
-}
 
 Item::~Item()
 {

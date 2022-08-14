@@ -26,7 +26,15 @@ int main() {
 	ui_Info.Nightbackground3 = LoadTexture("textures/Backgrounds/background_set/background3.png");
 	ui_Info.Nightbackground4 = LoadTexture("textures/Backgrounds/background_set/background4.png");
 	ui_Info.Moon = LoadTexture("textures/Backgrounds/background_set/Moon.png");
-					
+	ui_Info.Bow = LoadTexture("textures/player/lpc_entry/Weapons/WEAPON_bow.png");
+
+	/*Camera2D camera;
+	camera = { 0 };
+	camera.target = Vector2{ 0 ,0 };;
+	camera.offset = Vector2{ 800 / 2.0f, 400 / 2.0f };
+	camera.rotation = 0.0f;
+	camera.zoom = 1;*/
+
 
 	//ui_Info.blockHeight = /*28*/ 22;
 	//ui_Info.blockWidth = 22;
@@ -40,11 +48,18 @@ int main() {
 		int height = GetScreenHeight();
 		int width = GetScreenWidth();
 
+		/*BeginDrawing();
+		ClearBackground(LIGHTGRAY);
 
+		manager.DrawBackground(width, height);
 		
+		BeginMode2D(camera);*/
+
 		manager.Update(width, height);
 		manager.Draw(width, height);
 
+	/*	EndMode2D();
+		EndDrawing();*/
 
 		//BeginDrawing();
 		//ClearBackground(LIGHTGRAY);

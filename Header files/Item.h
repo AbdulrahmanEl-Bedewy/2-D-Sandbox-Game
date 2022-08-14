@@ -30,11 +30,12 @@ public:
 	ItemClass GetItemType();
 	ItemState GetItemState();
 
+	virtual void UpdateItem(Manager* pMmanager) = 0;
 	virtual bool UseItem(Manager* pMmanager) = 0;
 
 	//Drawing Functions
 	virtual void DrawItem(/*Vector2 pos, */int rotation, PlayerOrientaion orientation, ItemState State, Vector2 pos = {0,0}) = 0;
-	virtual void DrawText(Vector2 pos) = 0;
+	virtual void DrawName(Vector2 pos) = 0;
 
 	virtual ~Item();
 };

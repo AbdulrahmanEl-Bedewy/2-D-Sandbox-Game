@@ -4,16 +4,16 @@
 using namespace std;
 
 
-Player::Player(UIInfo* pUI)
+Player::Player(UIInfo* pUI): inventory(pUI)
 {
-	pos = Vector2{ 0,-900};
+	pos = Vector2{ 0,0};
 	Xspeed = 0;
 	Yspeed = 100;
 	walkFrame = 0;
 	frameDuration =0;
 	orientation = Left;
 	isWalking = false;
-	InAir = true;
+	InAir = false;
 	this->pUI = pUI;
 	texture = LoadTexture("textures/player/NPCSprites/Conrad.png");
 }
@@ -28,12 +28,18 @@ float Player::GetSpeedX() const
 	return Xspeed;
 }
 
+void Player::SetPos(Vector2 position)
+{
+	pos = position;
+}
+
 void Player::Update(Manager* pManager)
 {
-	float delta = GetFrameTime();
+	float delta = min(GetFrameTime(),0.05f);
 	Vector2 minPoint = pManager->GetMinPoint();
 	Vector2 maxPoint = pManager->GetMaxPoint();
 	vector<vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
+	vector< vector< vector< Item* > > >::const_iterator pickables = pManager->GetPickables();
 	InAir = true;
 
 
@@ -60,38 +66,51 @@ void Player::Update(Manager* pManager)
 		isWalking = false;
 	}
 
+	//Xspeed=-10;
+
 	// check for collisions for picking items and not falling 
-	// collision problem : always float to top of any wall even if height of wall is higher than a step 
 	for (int i = ((int)(pos.y - minPoint.y) / blockHeight) - 1; i < ((int)(pos.y - minPoint.y) / blockHeight) + 6; i++)
 	{
 		bool br = false;
 		for (int j = ((int)(pos.x - minPoint.x) / blockHeight) - 4; j < (int)(pos.x - minPoint.x) / blockHeight + 4; j++) // 
 		{
-			if (i>0 && j > 0 &&i < WorldHeight && j < WorldWidth && dirtblocks[i][j]) {
+			if (i>0 && j > 0 &&i < WorldHeight && j < WorldWidth ) {
 			
-				Vector2 dirtpos = dirtblocks[i][j]->GetPos();
 				
-				if (CheckCollisionRecs(Rectangle{ pos.x + 12 + Xspeed * delta ,pos.y + Yspeed * delta,17,64 }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {
-					
-					if (dirtblocks[i][j]->GetItemState() == Mined) { // picking action
-					
-						if (inventory.Insert(dirtblocks[i][j])) {
-							dirtblocks[i][j]->setState(Picked);
-							pManager->RemoveBlock(i, j);
+				
+				if (CheckCollisionRecs(Rectangle{ pos.x + 12 + Xspeed * delta ,pos.y + Yspeed * delta,17,64 }, Rectangle{ j * blockWidth + minPoint.x , i * blockHeight + minPoint.y , blockWidth, blockHeight }))/*Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight }*/ {
+
+					//if (dirtblocks[i][j]->GetItemState() == Mined) { // picking action
+					//
+					//	if (inventory.Insert(dirtblocks[i][j])) {
+					//		dirtblocks[i][j]->setState(Picked);
+					//		pManager->RemoveBlock(i, j);
+					//	}
+
+					//}
+					//else {
+					for (int k = pickables[i][j].size()-1; k >=0 ; k--)
+					{
+						if (inventory.Insert(pickables[i][j][k]))
+						{
+							pickables[i][j][k]->setState(Picked);
+							pManager->RemovePickable(i, j, pickables[i][j][k]);
+
+							
 						}
-				
 					}
-					else {
 
+					if (dirtblocks[i][j]) {
+						Vector2 dirtpos = dirtblocks[i][j]->GetPos();
 
-						if (Xspeed != 0 && dirtpos.y - pos.y > 2* blockHeight) {
+						if (Xspeed != 0 && dirtpos.y - pos.y > 2 * blockHeight) {
 							pos.y -= pos.y + 63 - dirtpos.y;
 						}
-						/*else*/ 
-						if (Xspeed > 0 && dirtpos.y - pos.y < 2* blockHeight && dirtpos.x > pos.x+12)
+						/*else*/
+						if (Xspeed > 0 && dirtpos.y - pos.y < 2 * blockHeight && dirtpos.x > pos.x + 12)
 						{
 							Xspeed = 0;
-							pos.x = dirtpos.x -29;
+							pos.x = dirtpos.x - 29;
 							isWalking = false;
 						}
 						if (Xspeed < 0 && dirtpos.y - pos.y < 2 * blockHeight && dirtpos.x < pos.x + 12) {
@@ -99,7 +118,7 @@ void Player::Update(Manager* pManager)
 							pos.x = dirtpos.x + blockWidth - 12;
 							isWalking = false;
 						}
-						if (Yspeed < 0 && dirtpos.y < pos.y  && dirtpos.x < pos.x + 29 && dirtpos.x + blockHeight > pos.x + 12) {
+						if (Yspeed < 0 && dirtpos.y < pos.y && dirtpos.x < pos.x + 29 && dirtpos.x + blockHeight > pos.x + 12) {
 							Yspeed = 0;
 							pos.y = dirtpos.y + blockHeight;
 						}
@@ -109,12 +128,13 @@ void Player::Update(Manager* pManager)
 							pos.y = dirtpos.y - 63;
 							br = true;
 						}
-						
+
 						/*InAir = false;
 						Yspeed = 0;
 						pos.y = dirtpos.y - 63;
 						br = true;
-						break;*/
+						break;
+						}*/
 					}
 				}
 			}
@@ -178,12 +198,19 @@ void Player::Update(Manager* pManager)
 		if (dirtblocks[coordinate.y][coordinate.x])
 		{
 			dirtblocks[coordinate.y][coordinate.x]->setState(Mined);
+			pManager->AddPickable(coordinate.y, coordinate.x, dirtblocks[coordinate.y][coordinate.x]);
+			pManager->RemoveBlock(coordinate.y, coordinate.x);
 		}
 	}
 
 	if (IsKeyPressed(KEY_ENTER)) {
 		inventory.ToggleExpanded();
 	}
+}
+
+void Player::UpdateInventory(Manager* pManager)
+{
+	inventory.UpdateSelected(pManager);
 }
 
 void Player::draw()
@@ -213,7 +240,7 @@ void Player::draw()
 
 void Player::drawInv()
 {
-	inventory.DrawItems();
+	inventory.DrawItems(orientation);
 }
 
 

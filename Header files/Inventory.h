@@ -11,14 +11,19 @@ class Manager;
 struct Stack {
 	int StackSize; // current stack size
 	int stackPos; // item number in the inventory max = 50
-	vector<Item*> items; // items in the stack
-
+	Item* items[MaxStackSize]; // items in the stack
+	~Stack() {
+		for (int i = 0; i < StackSize; i++)
+		{
+			delete items[i];
+		}
+	}
 };
 
 class Inventory
 {
 	int Size; // size of inventory
-	int MaxStackSize; // max size of a stack (i think should be replace by a const)
+	//int MaxStackSize; // max size of a stack (i think should be replace by a const)
 	int SelectedPos;
 	bool Expanded;
 	Stack* ItemStacks[25];
@@ -30,17 +35,19 @@ class Inventory
 	void RemoveStack(int pos);
 
 public:
-	Inventory();
+	Inventory(UIInfo* p);
 
 	// adds items to inventory. True if added False if storage full
 	bool Insert(Item* item);
 
-	void DrawItems();
+	void DrawItems(PlayerOrientaion Orientation);
 
 	void UseItem(Manager* pManager);
 
 	void IncrementSelectedPos(int increment);
 	void ToggleExpanded();
+
+	void UpdateSelected(Manager* pManager);
 
 	~Inventory();
 };

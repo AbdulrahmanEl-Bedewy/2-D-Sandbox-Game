@@ -15,10 +15,11 @@ class Manager
 	Camera2D camera;
 	Vector2 minPoint;
 	Vector2 maxPoint;
+	Vector2 SpawnPoint;
 	Player player;
 	vector<vector<Item*>> dirtblocks; // change name to blocks
 	vector<vector<int>> wall;		 // change to vector<vector<**SomeType WAll***>> when dealing with multiple biomes and walls
-	vector<vector<Item*>> Pickables; // maybe change it to vector<vector<vector<Item*>>> to have multiple items at same location
+	vector<vector<vector<Item*>>> Pickables; // maybe change it to vector<vector<vector<Item*>>> to have multiple items at same location
 									 // at each coordinate a vector of items that can be picked
 	
 	// for handling background movement
@@ -39,15 +40,17 @@ public:
 
 	void Update(int WindowWidth, int WindowHeight);
 	void Draw(int WindowWidth, int WindowHeight);
+	void DrawBackground(int WindowWidth, int WindowHeight);
 	void AddPickable(int i,int j,Item* item);
+	void RemovePickable(int i, int j, Item* item);
 	void RemoveBlock(int i, int j);
 	bool PlaceBlock(int x, int y,Item* item); //
 	bool PlaceBlock(Vector2 pos, Item* item);
 
 	Vector2 GetMinPoint();
 	Vector2 GetMaxPoint();
-	vector<vector<Item*>>::const_iterator GetDirtBlocks();
-	vector<vector<Item*>>::const_iterator GetPickables();
+	vector< vector< Item* > >::const_iterator GetDirtBlocks();
+	vector< vector< vector< Item* > > >::const_iterator GetPickables();
 	const Player* GetPlayer();
 
 
@@ -61,6 +64,7 @@ public:
 	Vector2 GetCoordinateFromScreen(int x, int y);
 	Vector2 GetCoordinateFromScreen(Vector2 p);
 	Vector2 GetWorldXY(Vector2 pos);
+	Vector2 GetScreenXY(Vector2 pos);
 
 	~Manager();
 };
