@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include "raylib.h"
-using namespace std;
+
 
 #define WorldWidth 1500 // in blocks
 #define WorldHeight 156 //in blocks

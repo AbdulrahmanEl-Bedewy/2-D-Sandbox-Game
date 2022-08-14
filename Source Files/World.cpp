@@ -2,7 +2,7 @@
 #include "../Header files/Defs.h"
 #include "../Header files/Dirt.h"
 #include "../SimpleNoise/SimplexNoise.h"
-
+using namespace std;
 
 
 

@@ -2,7 +2,7 @@
 #include"raylib.h"
 #include <vector>
 #include <string>
-using namespace std;
+
 
 class Dirt;
 struct UIInfo;
@@ -11,7 +11,7 @@ struct UIInfo;
 
 class World
 {
-	vector<vector<Dirt*>> Blocks;
+	std::vector<std::vector<Dirt*>> Blocks;
 	Vector2 minPoint;
 	Vector2 maxPoint;
 	UIInfo* pUI;
@@ -19,11 +19,11 @@ class World
 public:
 	World(UIInfo* p);
 
-	vector<vector<Dirt*>>::const_iterator getBlocks();
+	std::vector<std::vector<Dirt*>>::const_iterator getBlocks();
 
 	void GenerateWorld();
 	void SaveWorld();
-	void LoadWorld(const string name);
+	void LoadWorld(const std::string name);
 
 	void DrawWorld();
 };

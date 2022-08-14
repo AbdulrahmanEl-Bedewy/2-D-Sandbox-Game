@@ -1,5 +1,6 @@
 #include "..\Header files\Bow.h"
 #include "../Header files/Manager.h"
+using namespace std;
 
 Bow::Bow(UIInfo* p,Vector2 position)
 {

@@ -1,7 +1,7 @@
 #include "../Header files/Dirt.h"
 #include "../Header files/Manager.h"
 #include "../Header files/Player.h"
-
+using namespace std;
 
 
 Dirt::Dirt(UIInfo* p, ItemClass IC, Vector2 position)
@@ -87,7 +87,7 @@ void Dirt::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State,
 		DrawTextureRec(pUI->dirtTex, Rectangle{ 0, 3, blockWidth  , blockHeight }, Invpos, Fade(BROWN, 0.5));
 		break;
 	case Placed:
-		DrawTextureRec(pUI->dirtTex, Rectangle{ 0,0 , 16 , 16 }, pos, WHITE); //for tile option 2	//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,/*64*/ 3, blockWidth , blockHeight }, pos, /*WHITE*/Color{ 215, 162, 125, 255 });
+		DrawTexturePro(pUI->dirtTex, Rectangle{ 1, 1, 15, 15 }, Rectangle{ pos.x ,pos.y , blockWidth  , blockHeight }, Vector2{ 0, 0 }, 0.0f, WHITE);	//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,0 , 16 , 16 }, pos, WHITE); //for tile option 2	//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,/*64*/ 3, blockWidth , blockHeight }, pos, /*WHITE*/Color{ 215, 162, 125, 255 });
 		break;
 	case Mined:
 		DrawTexturePro(pUI->dirtTex, Rectangle{ 0, 0, 16 , 16 }, Rectangle{ pos.x + 2.5f,pos.y + 2.5f, blockWidth - 5 , blockHeight - 5 }, Vector2{ 0, 0 }, 0.0f, WHITE);

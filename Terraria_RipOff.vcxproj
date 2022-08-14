@@ -147,8 +147,7 @@
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\Manager.cpp" />
     <ClCompile Include="Source Files\Player.cpp" />
-    <ClCompile Include="Source Files\Source.cpp" />
-    <ClCompile Include="Source Files\Source1.cpp" />
+    <ClCompile Include="Source Files\main.cpp" />
     <ClCompile Include="Source Files\Sword.cpp" />
     <ClCompile Include="Source Files\World.cpp" />
   </ItemGroup>

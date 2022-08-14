@@ -1,5 +1,6 @@
 #include "..\Header files\Sword.h"
 #include "../Header files/Manager.h"
+using namespace std;
 
 
 Sword::Sword(UIInfo* p, Vector2 position)

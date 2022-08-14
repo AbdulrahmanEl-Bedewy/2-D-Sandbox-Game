@@ -2,6 +2,7 @@
 #include "../Header files/Item.h"
 #include "../Header files/Manager.h"
 #include "../Header files/Bow.h"
+using namespace std;
 
 
 Inventory::Inventory(UIInfo* p /* for testing*/)

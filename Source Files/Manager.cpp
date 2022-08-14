@@ -1,7 +1,7 @@
 #include "..\Header files\Manager.h"
 #include "../SimpleNoise/SimplexNoise.h"
 //#include <iostream>
-//using namespace std;
+using namespace std;
 
 Manager::Manager(UIInfo* p) :player(p)
 {
@@ -134,10 +134,12 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 {
 	Vector2 pos = player.GetPos();
-	camera.target = Vector2{ pos.x + 20 , pos.y + 20 };
+	camera.target.x = pos.x + 20;/*Vector2{ pos.x + 20 , pos.y + 20 };*/
 	camera.offset = Vector2{ WindowWidth / 2.0f, WindowHeight / 2.0f };
 	Vector2 max = GetWorldToScreen2D(Vector2{ maxPoint.x, maxPoint.y }, camera);
 	Vector2 min = GetWorldToScreen2D(Vector2{ minPoint.x , minPoint.y }, camera);
+	if (abs(pos.y - camera.target.y) > 10) 
+		camera.target.y += 200 * GetFrameTime()* abs(pos.y - camera.target.y)/ (pos.y - camera.target.y);
 	if (max.x < WindowWidth) camera.offset.x = WindowWidth - (max.x - WindowWidth / 2);
 	if (max.y < WindowHeight) camera.offset.y = WindowHeight - (max.y - WindowHeight / 2);
 	if (min.x > 0) camera.offset.x = WindowWidth / 2 - min.x;

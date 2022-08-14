@@ -2,7 +2,7 @@
 #include "raylib.h"
 #include "Defs.h"
 #include "Inventory.h"
-using namespace std;
+
 
 class Manager;
 
