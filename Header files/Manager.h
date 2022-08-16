@@ -4,6 +4,7 @@
 #include "Player.h"
 #include <vector>
 #include <unordered_set>
+#include <unordered_map>
 
 class Ammo;
 
@@ -20,7 +21,7 @@ class Manager
 	Player player;
 	std::vector<std::vector<Item*>> dirtblocks; // change name to blocks
 	std::vector<std::vector<int>> wall;		 // change to vector<vector<**SomeType WAll***>> when dealing with multiple biomes and walls
-	std::vector<std::vector<std::vector<Item*>>> Pickables; // maybe change it to vector<vector<vector<Item*>>> to have multiple items at same location
+	std::unordered_map <int, std::vector<Item*>> Pickables; // maybe change it to vector<vector<vector<Item*>>> to have multiple items at same location
 									 // at each coordinate a vector of items that can be picked
 	std::unordered_set<Ammo*> FiredAmmo;
 
@@ -54,7 +55,7 @@ public:
 	Vector2 GetMinPoint();
 	Vector2 GetMaxPoint();
 	std::vector< std::vector< Item* > >::const_iterator GetDirtBlocks();
-	std::vector< std::vector< std::vector< Item* > > >::const_iterator GetPickables();
+	std::unordered_map <int, std::vector<Item*>>* GetPickables();
 	Player* GetPlayer();
 
 

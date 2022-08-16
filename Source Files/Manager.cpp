@@ -36,6 +36,47 @@ Manager::Manager(UIInfo* p) :player(p)
 	Worker1.join();
 
 
+	////initialize vector
+	//Progress = 0;
+
+	//thread Worker2([&] (int* Progress){
+	//	for (int i = 0; i < WorldHeight; i++)
+	//	{
+	//		vector<vector<Item*>> temp;
+	//		//Pickables.push_back(vector<vector<Item*>>{});
+	//		for (int j = 0; j < WorldWidth; j++)
+	//		{
+	//			temp.push_back(vector<Item*>{});
+	//			(*Progress)++;
+	//		}
+	//		Pickables.push_back(temp);
+	//	}
+
+	//	},&Progress);
+
+
+	//while (Progress < WorldHeight * WorldWidth )
+	//{
+
+	///*	if (WindowShouldClose())
+	//	{
+	//		Worker2.~thread();
+	//		return;
+	//	}*/
+
+	//	BeginDrawing();
+	//	ClearBackground(WHITE);
+	//	DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
+
+	//	DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
+
+	//	EndDrawing();
+	//}
+
+	//Worker2.join();
+
+
+
 	scrollingBack1 = 0.0f;
 	scrollingBack2 = 0.0f;
 	scrollingBack3 = 0.0f;
@@ -44,44 +85,6 @@ Manager::Manager(UIInfo* p) :player(p)
 
 	Day = true;
 
-	//initialize vector
-	Progress = 0;
-
-	thread Worker2([&] (int* Progress){
-		for (int i = 0; i < WorldHeight; i++)
-		{
-			vector<vector<Item*>> temp;
-			//Pickables.push_back(vector<vector<Item*>>{});
-			for (int j = 0; j < WorldWidth; j++)
-			{
-				temp.push_back(vector<Item*>{});
-				(*Progress)++;
-			}
-			Pickables.push_back(temp);
-		}
-
-		},&Progress);
-
-
-	while (Progress < WorldHeight * WorldWidth )
-	{
-
-	/*	if (WindowShouldClose())
-		{
-			Worker2.~thread();
-			return;
-		}*/
-
-		BeginDrawing();
-		ClearBackground(WHITE);
-		DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
-
-		DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
-
-		EndDrawing();
-	}
-
-	Worker2.join();
 
 
 	scrollingBack1 = 0.0f;
@@ -187,26 +190,27 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 	{
 		for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
 		{
-			if (i < Pickables.size() && j < Pickables[i].size()) {
-				
-				if (Pickables[i][j].size() > 0)
-					for (int k = 0; k < Pickables[i][j].size(); k++)
+				if (Pickables.find(i * WorldWidth + j) != Pickables.end()) {
+					vector<Item*>& temp = (*Pickables.find(i * WorldWidth + j)).second;
+					for (int i = 0; i < temp.size(); i++)
 					{
-						Pickables[i][j][k]->UpdateItem(this);
+						temp[i]->UpdateItem(this);
+						if (Pickables.find(i * WorldWidth + j) == Pickables.end())
+							break;
 					}
-			}
+				}
 		}
 	}
 
-	for (auto it = FiredAmmo.cbegin(); it != FiredAmmo.cend() /* not hoisted */; /* no increment */)
+	for (auto it = FiredAmmo.cbegin(); it != FiredAmmo.cend() ; )
 	{
-		//if ((*it)->Hit())
-		//{
-		//	Ammo* temp = *it;
-		//	FiredAmmo.erase(it++);    // or "it = m.erase(it)" since C++11
-		//	delete temp;
-		//}
-		//else
+		if ((*it)->Hit())
+		{
+			Ammo* temp = *it;
+			FiredAmmo.erase(it++);
+			delete temp;
+		}
+		else
 		{
 			(*it)->UpdateItem(this);
 			++it;
@@ -220,12 +224,12 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 {
 	Vector2 pos = player.GetPos();
-	camera.target.x = pos.x + 20;/*Vector2{ pos.x + 20 , pos.y + 20 };*/
+	camera.target/*.x = pos.x + 20;*/ = Vector2{ pos.x + 20 , pos.y + 20 };
 	camera.offset = Vector2{ WindowWidth / 2.0f, WindowHeight / 2.0f };
 	Vector2 max = GetWorldToScreen2D(Vector2{ maxPoint.x, maxPoint.y }, camera);
 	Vector2 min = GetWorldToScreen2D(Vector2{ minPoint.x , minPoint.y }, camera);
-	if (abs(pos.y - camera.target.y) > 10) 
-		camera.target.y += 200 * GetFrameTime()* abs(pos.y - camera.target.y)/ (pos.y - camera.target.y);
+	/*if (abs(pos.y - camera.target.y) > 10) 
+		camera.target.y += 200 * GetFrameTime()* abs(pos.y - camera.target.y)/ (pos.y - camera.target.y);*/
 	if (max.x < WindowWidth) camera.offset.x = WindowWidth - (max.x - WindowWidth / 2);
 	if (max.y < WindowHeight) camera.offset.y = WindowHeight - (max.y - WindowHeight / 2);
 	if (min.x > 0) camera.offset.x = WindowWidth / 2 - min.x;
@@ -465,19 +469,32 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 				}
 				if(dirtblocks[i][j])
 					dirtblocks[i][j]->DrawItem(0, Right, Placed);
+				if (Pickables.find(i * WorldWidth + j) != Pickables.end()) {
+
+					vector<Item*>& temp = (*Pickables.find(i * WorldWidth + j)).second;
+					temp[0]->DrawItem(0, Right, Mined);
+				}
 			}
 		}
 	}
 
-	for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
-	{
-		for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
-		{
-			if (i < WorldHeight && j < WorldWidth && i>0 && j>0)
-				if (Pickables[i][j].size() > 0)
-					Pickables[i][j][0]->DrawItem(0, Right, Mined);
-		}
-	}
+	//for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
+	//{
+	//	for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
+	//	{
+	//		if (i < WorldHeight && j < WorldWidth && i>0 && j>0) {
+
+	///*			if (Pickables[i][j].size() > 0)
+	//				Pickables[i][j][0]->DrawItem(0, Right, Mined);*/
+
+	//			if (Pickables.find(i * WorldWidth + j) != Pickables.end()) {
+
+	//				vector<Item*>& temp = (*Pickables.find(i * WorldWidth + j)).second;
+	//				temp[0]->DrawItem(0,Right,Mined);
+	//			}
+	//		}
+	//	}
+	//}
 	for (auto i = FiredAmmo.begin(); i != FiredAmmo.end(); i++)
 	{
 		(*i)->DrawItem(0, Right, Placed);
@@ -507,13 +524,23 @@ void Manager::DrawBackground(int WindowWidth, int WindowHeight)
 
 void Manager::AddPickable(int i, int j, Item* item) // might need re-implementation later
 {
-	if(find(Pickables[i][j].begin(), Pickables[i][j].end(),item) == Pickables[i][j].end())
-		Pickables[i][j].push_back(item);	
+	/*if(find(Pickables[i][j].begin(), Pickables[i][j].end(),item) == Pickables[i][j].end())
+		Pickables[i][j].push_back(item);	*/
+
+	if (Pickables.find(i * WorldWidth + j) != Pickables.end()) {
+		(*Pickables.find(i * WorldWidth + j)).second.push_back(item);
+	}
+	else
+	{
+		vector<Item*> temp;
+		temp.push_back(item);
+		Pickables.insert({ i * WorldWidth + j, temp });
+	}
 }
 
 void Manager::RemovePickable(int i, int j, Item* item)
 {
-	if (Pickables[i][j].size() > 0)
+	/*if (Pickables[i][j].size() > 0)
 	{
 		for (vector<Item*>::iterator k = Pickables[i][j].begin(); k != Pickables[i][j].end(); k++)
 		{
@@ -523,6 +550,19 @@ void Manager::RemovePickable(int i, int j, Item* item)
 				break;
 			}
 		}
+	}*/
+	if (Pickables.find(i * WorldWidth + j) != Pickables.end()) {
+		vector<Item*>& temp = (*Pickables.find(i * WorldWidth + j)).second;
+		for (vector<Item*>::iterator i = temp.begin(); i < temp.end(); i++)
+		{
+			if (*i == item) {
+				temp.erase(i);
+				break;
+			}
+		}
+		if (temp.size() == 0)
+			Pickables.erase(i * WorldWidth + j);
+
 	}
 }
 
@@ -587,9 +627,9 @@ vector<vector<Item*>>::const_iterator  Manager::GetDirtBlocks()
 	return dirtblocks.begin();
 }
 
-vector< vector<vector<Item*>>>::const_iterator Manager::GetPickables()
+std::unordered_map <int, std::vector<Item*>>* Manager::GetPickables()
 {
-	return Pickables.begin();
+	return &Pickables;
 }
 
 Player* Manager::GetPlayer()
@@ -600,16 +640,17 @@ Player* Manager::GetPlayer()
 Manager::~Manager()
 {
 
-	for (int i = 0; i < 112; i++)
+	for (int i = 0; i < WorldHeight; i++)
 	{
-		for (int j = 0; j < 344; j++)
+		for (int j = 0; j < WorldWidth; j++)
 		{
 			if (dirtblocks[i][j])
 				delete dirtblocks[i][j];
-			if (Pickables[i][j].size() !=0)
-			{
-				for (int k = 0; k < Pickables[i][j].size(); k++) {
-					delete Pickables[i][j][k];
+			if (Pickables.find(i * WorldWidth + j) != Pickables.end()) {
+				vector<Item*>& tempVec = (*Pickables.find(i * WorldWidth + j)).second;
+				for (int i = 0; i < tempVec.size(); i++)
+				{
+					delete tempVec[i];
 				}
 			}
 		}
