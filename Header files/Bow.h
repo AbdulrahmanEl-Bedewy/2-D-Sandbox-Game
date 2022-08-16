@@ -5,7 +5,7 @@ class Bow :
     public Item
 {
     float Damage;
-    float FireSpeed;
+    int FireSpeed;
     float FiringTimer;
     float timer;
     int frame;

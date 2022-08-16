@@ -53,7 +53,7 @@ void Player::Update(Manager* pManager)
 	Vector2 minPoint = pManager->GetMinPoint();
 	Vector2 maxPoint = pManager->GetMaxPoint();
 	vector<vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
-	unordered_map <int, vector<Item*>>* pickables = pManager->GetPickables();
+	vector< vector< vector< Item* > > >::const_iterator pickables = pManager->GetPickables();
 	InAir = true;
 
 
@@ -103,7 +103,7 @@ void Player::Update(Manager* pManager)
 
 					//}
 					//else {
-					/*for (int k = pickables[i][j].size()-1; k >=0 ; k--)
+					for (int k = pickables[i][j].size()-1; k >=0 ; k--)
 					{
 						if (inventory.Insert(pickables[i][j][k]))
 						{
@@ -111,20 +111,6 @@ void Player::Update(Manager* pManager)
 							pManager->RemovePickable(i, j, pickables[i][j][k]);
 
 							
-						}
-					}*/
-
-					if ((*pickables).find(i * WorldWidth + j) != (*pickables).end()) {
-						vector<Item*>& tempVector = (*(*pickables).find(i * WorldWidth + j)).second;
-						for (int k = tempVector.size() - 1; k >= 0; k--)
-						{
-							if (inventory.Insert(tempVector[k]))
-							{
-								tempVector[k]->setState(Picked);
-								pManager->RemovePickable(i, j, tempVector[k]);
-
-
-							}
 						}
 					}
 
@@ -215,7 +201,7 @@ void Player::Update(Manager* pManager)
 
 	//inventory management
 	inventory.IncrementSelectedPos(-GetMouseWheelMove());
-	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
+	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
 	{
 		inventory.UseItem(pManager);
 	}
