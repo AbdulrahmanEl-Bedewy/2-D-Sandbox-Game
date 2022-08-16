@@ -27,6 +27,8 @@ public:
 	Vector2 GetPos() const;
 	float GetSpeedX() const;
 	void SetPos(Vector2 position);
+	void SetOrientation(PlayerOrientaion orientation);
+	PlayerOrientaion GetOrientation();
 
 
 	// update player movement and takes care of collisions and picking 

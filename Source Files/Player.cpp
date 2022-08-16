@@ -37,6 +37,16 @@ void Player::SetPos(Vector2 position)
 	pos = position;
 }
 
+void Player::SetOrientation(PlayerOrientaion orientation)
+{
+	this->orientation = orientation;
+}
+
+PlayerOrientaion Player::GetOrientation()
+{
+	return orientation;
+}
+
 void Player::Update(Manager* pManager)
 {
 	float delta = min(GetFrameTime(),0.05f);

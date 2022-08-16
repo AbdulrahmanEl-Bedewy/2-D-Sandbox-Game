@@ -3,8 +3,9 @@
 #include "Dirt.h"
 #include "Player.h"
 #include <vector>
+#include <unordered_set>
 
-
+class Ammo;
 
 class Manager
 {
@@ -17,11 +18,12 @@ class Manager
 	Vector2 maxPoint;
 	Vector2 SpawnPoint;
 	Player player;
-	vector<vector<Item*>> dirtblocks; // change name to blocks
-	vector<vector<int>> wall;		 // change to vector<vector<**SomeType WAll***>> when dealing with multiple biomes and walls
-	vector<vector<vector<Item*>>> Pickables; // maybe change it to vector<vector<vector<Item*>>> to have multiple items at same location
+	std::vector<std::vector<Item*>> dirtblocks; // change name to blocks
+	std::vector<std::vector<int>> wall;		 // change to vector<vector<**SomeType WAll***>> when dealing with multiple biomes and walls
+	std::vector<std::vector<std::vector<Item*>>> Pickables; // maybe change it to vector<vector<vector<Item*>>> to have multiple items at same location
 									 // at each coordinate a vector of items that can be picked
-	
+	std::unordered_set<Ammo*> FiredAmmo;
+
 	// for handling background movement
 	float scrollingBack1;
 	float scrollingBack2;
@@ -33,7 +35,7 @@ class Manager
 
 	/*void UpdatePlayer(int WindowWidth, int WindowHeight);*/
 	void UpdateCam(int WindowWidth, int WindowHeight);
-	void GenerateWorld();
+	void GenerateWorld(int* BlocksFinished);
 
 public:
 	Manager(UIInfo* p);
@@ -46,12 +48,14 @@ public:
 	void RemoveBlock(int i, int j);
 	bool PlaceBlock(int x, int y,Item* item); //
 	bool PlaceBlock(Vector2 pos, Item* item);
+	void AddFiredAmmo(Ammo* ammo);
+	void RemoveFiredAmmo(Ammo* ammo);
 
 	Vector2 GetMinPoint();
 	Vector2 GetMaxPoint();
-	vector< vector< Item* > >::const_iterator GetDirtBlocks();
-	vector< vector< vector< Item* > > >::const_iterator GetPickables();
-	const Player* GetPlayer();
+	std::vector< std::vector< Item* > >::const_iterator GetDirtBlocks();
+	std::vector< std::vector< std::vector< Item* > > >::const_iterator GetPickables();
+	Player* GetPlayer();
 
 
 	bool isSurfaceTile(int row, int column);

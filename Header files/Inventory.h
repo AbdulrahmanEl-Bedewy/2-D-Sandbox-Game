@@ -27,7 +27,7 @@ class Inventory
 	int SelectedPos;
 	bool Expanded;
 	Stack* ItemStacks[25];
-	unordered_map<ItemClass, vector<int>> OpenStack;
+	std::unordered_map<ItemClass, std::vector<int>> OpenStack;
 
 
 	Stack* getStackFromPos(int p);

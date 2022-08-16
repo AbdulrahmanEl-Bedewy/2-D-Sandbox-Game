@@ -1,5 +1,7 @@
 #include "..\Header files\Manager.h"
 #include "../SimpleNoise/SimplexNoise.h"
+#include "../Header files/Ammo.h"
+#include <thread>
 //#include <iostream>
 using namespace std;
 
@@ -10,7 +12,76 @@ Manager::Manager(UIInfo* p) :player(p)
 	minPoint = Vector2{ -WorldWidth / 2 * blockWidth ,-WorldHeight / 2 * blockHeight };
 	maxPoint = Vector2{ WorldWidth / 2 * blockWidth ,WorldHeight / 2 * blockHeight };
 	
-	GenerateWorld();
+
+	int Progress = 0;
+
+	thread Worker1(&Manager::GenerateWorld, this, &Progress);
+
+	while (Progress < WorldHeight * WorldWidth && !WindowShouldClose())
+	{
+		/*if (WindowShouldClose())
+		{
+			Worker1.~thread();
+			return;
+		}*/
+		BeginDrawing();
+		ClearBackground(WHITE);
+		DrawText("Generating World", GetScreenWidth() / 2 - MeasureText("Generating World", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
+
+		DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
+
+		EndDrawing();
+	}
+
+	Worker1.join();
+
+
+	scrollingBack1 = 0.0f;
+	scrollingBack2 = 0.0f;
+	scrollingBack3 = 0.0f;
+	scrollingBack4 = 0.0f;
+	scrollingBackSun_Moon = 0.0f;
+
+	Day = true;
+
+	//initialize vector
+	Progress = 0;
+
+	thread Worker2([&] (int* Progress){
+		for (int i = 0; i < WorldHeight; i++)
+		{
+			vector<vector<Item*>> temp;
+			//Pickables.push_back(vector<vector<Item*>>{});
+			for (int j = 0; j < WorldWidth; j++)
+			{
+				temp.push_back(vector<Item*>{});
+				(*Progress)++;
+			}
+			Pickables.push_back(temp);
+		}
+
+		},&Progress);
+
+
+	while (Progress < WorldHeight * WorldWidth )
+	{
+
+	/*	if (WindowShouldClose())
+		{
+			Worker2.~thread();
+			return;
+		}*/
+
+		BeginDrawing();
+		ClearBackground(WHITE);
+		DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
+
+		DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
+
+		EndDrawing();
+	}
+
+	Worker2.join();
 
 
 	scrollingBack1 = 0.0f;
@@ -22,14 +93,14 @@ Manager::Manager(UIInfo* p) :player(p)
 	Day = true;
 	
 	//initialize vector
-	for (int i = 0; i < WorldHeight; i++)
+	/*for (int i = 0; i < WorldHeight; i++)
 	{
 		Pickables.push_back(vector<vector<Item*>>{});
 		for (int j = 0; j < WorldWidth; j++)
 		{
 			Pickables[i].push_back(vector<Item*>{});
 		}
-	}
+	}*/
 
 	camera = { 0 };
 	camera.target = Vector2{ player.GetPos().x + 20 , player.GetPos().y + 20 };;
@@ -127,6 +198,21 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		}
 	}
 
+	for (auto it = FiredAmmo.cbegin(); it != FiredAmmo.cend() /* not hoisted */; /* no increment */)
+	{
+		//if ((*it)->Hit())
+		//{
+		//	Ammo* temp = *it;
+		//	FiredAmmo.erase(it++);    // or "it = m.erase(it)" since C++11
+		//	delete temp;
+		//}
+		//else
+		{
+			(*it)->UpdateItem(this);
+			++it;
+		}
+	}
+
 }
 
 
@@ -149,7 +235,7 @@ void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 
 
 
-void Manager::GenerateWorld()
+void Manager::GenerateWorld(int* BlocksFinished)
 {
 	float arr[WorldWidth];
 	float seed = rand();
@@ -157,7 +243,7 @@ void Manager::GenerateWorld()
 	//float fNoiseSeed1D[344];
 	//for (int i = 0; i < 344; i++) fNoiseSeed1D[i] = (float)rand() / (float)RAND_MAX;
 	//PerlinNoise1D(344, fNoiseSeed1D, 4, 0.4, arr); //6, 0.6
-	
+
 	//for (int i = 0; i < 344; i++) {
 	//	arr[i] = (int)(arr[i] * 800) / blockHeight * blockHeight;
 	//}
@@ -169,7 +255,7 @@ void Manager::GenerateWorld()
 		//	smoothness = 10;
 		//else
 		//	smoothness = 320;
-		arr[x] = (int)(SimplexNoise::noise(x / smoothness, seed)* 600 / blockHeight) * blockHeight;
+		arr[x] = (int)(SimplexNoise::noise(x / smoothness, seed) * 600 / blockHeight) * blockHeight;
 	}
 
 	int first = 0;
@@ -180,8 +266,8 @@ void Manager::GenerateWorld()
 		wall.push_back(vector<int>{});
 		for (int j = 0; j < WorldWidth /*344*/; j++)
 		{
-			
-			
+
+
 			if (i * blockHeight + minPoint.y < -arr[j]) /*if(j*blockHeight -5000>0)*/
 			{
 				temp.push_back(NULL);
@@ -200,7 +286,7 @@ void Manager::GenerateWorld()
 					first++;
 				}
 
-				if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i * blockHeight + minPoint.y > 400 && i!=155) {
+				if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i * blockHeight + minPoint.y > 400 && i != WorldHeight - 1) {
 					temp.push_back(NULL);
 				}
 				else {
@@ -209,6 +295,7 @@ void Manager::GenerateWorld()
 					temp.push_back(d);
 				}
 			}
+			(*BlocksFinished)++;
 		}
 		dirtblocks.push_back(temp);
 	}
@@ -386,10 +473,14 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	{
 		for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
 		{
-			if (i < 156 && j < 1500 && i>0 && j>0) 
+			if (i < WorldHeight && j < WorldWidth && i>0 && j>0)
 				if (Pickables[i][j].size() > 0)
 					Pickables[i][j][0]->DrawItem(0, Right, Mined);
 		}
+	}
+	for (auto i = FiredAmmo.begin(); i != FiredAmmo.end(); i++)
+	{
+		(*i)->DrawItem(0, Right, Placed);
 	}
 	//for (int i = /*floorf((nibba.rec.y - WindowHeight + (-minPoint.y)) / (float)pUI->blockHeight)*/ 0; i < ceilf((pos.y + WindowHeight  /* + (-minPoint.y)*/) / (float)pUI->blockHeight); i++)
 	//{
@@ -469,6 +560,18 @@ bool Manager::PlaceBlock(Vector2 pos, Item* item)
 	return PlaceBlock(pos.y,pos.x,item);
 }
 
+void Manager::AddFiredAmmo(Ammo* ammo)
+{
+	FiredAmmo.insert(ammo);
+}
+
+//void Manager::RemoveFiredAmmo(Item* ammo)
+//{
+//	if (FiredAmmo.find(ammo) != FiredAmmo.end()) {
+//		FiredAmmo.erase(FiredAmmo.find(ammo));
+//		delete ammo;
+//	}
+//}
 Vector2 Manager::GetMinPoint()
 {
 	return minPoint;
@@ -489,7 +592,7 @@ vector< vector<vector<Item*>>>::const_iterator Manager::GetPickables()
 	return Pickables.begin();
 }
 
-const Player* Manager::GetPlayer()
+Player* Manager::GetPlayer()
 {
 	return &player;
 }

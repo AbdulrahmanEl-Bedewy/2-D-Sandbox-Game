@@ -141,6 +141,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="SimpleNoise\SimplexNoise.cpp" />
+    <ClCompile Include="Source Files\Ammo.cpp" />
+    <ClCompile Include="Source Files\Arrow.cpp" />
     <ClCompile Include="Source Files\Bow.cpp" />
     <ClCompile Include="Source Files\Dirt.cpp" />
     <ClCompile Include="Source Files\Inventory.cpp" />
@@ -152,6 +154,8 @@
     <ClCompile Include="Source Files\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header files\Ammo.h" />
+    <ClInclude Include="Header files\Arrow.h" />
     <ClInclude Include="Header files\Bow.h" />
     <ClInclude Include="Header files\Defs.h" />
     <ClInclude Include="Header files\Dirt.h" />

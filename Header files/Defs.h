@@ -4,7 +4,7 @@
 
 
 #define WorldWidth 1500 // in blocks
-#define WorldHeight 156 //in blocks
+#define WorldHeight 1500 //in blocks
 #define blockWidth 18
 #define blockHeight 18
 #define SectorWidth 2000
@@ -15,7 +15,8 @@ enum ItemClass
 	Block,
 	MeleeWeaopon,
 	RangedWeapon,
-	MageWeapon
+	MageWeapon,
+	ammo,
 };
 
 enum ItemState
@@ -35,13 +36,14 @@ enum PlayerOrientaion
 struct UIInfo
 {
 	//int WorldWidth;
-	string dirtName;
-	string dirtDes;
+	std::string dirtName;
+	std::string dirtDes;
 	Texture2D dirtTex;
 	Texture2D wall;
 	Texture2D player;
 	Texture2D mob;
 	Texture2D Bow;
+	Texture2D Arrow;
 	Texture2D Sword;
 	Texture2D Morningbackground1;
 	Texture2D Morningbackground2;
