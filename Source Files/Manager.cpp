@@ -540,6 +540,11 @@ Player* Manager::GetPlayer()
 	return &player;
 }
 
+Vector2 Manager::GetSpawn()
+{
+	return SpawnPoint;
+}
+
 Manager::~Manager()
 {
 

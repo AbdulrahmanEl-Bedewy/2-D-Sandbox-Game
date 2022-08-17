@@ -174,14 +174,12 @@ void Player::Update(Manager* pManager)
 
 	if (pos.x < minPoint.x)
 		pos.x = minPoint.x;
+
 	if (IsKeyPressed(KEY_R)) {
-		pos.x = -60;
-		pos.y = -700;
+		pos = pManager->GetSpawn();
+		pos.y -= 70;
 	}
-	if (IsKeyPressed(KEY_E)) {
-		pos.x = 70;
-		pos.y = -700;
-	}
+
 
 	//inventory management
 	inventory.IncrementSelectedPos(-GetMouseWheelMove());

@@ -56,7 +56,7 @@ public:
 	std::vector< std::vector< Item* > >::const_iterator GetDirtBlocks();
 	std::vector< std::vector< std::vector< Item* > > >::const_iterator GetPickables();
 	Player* GetPlayer();
-
+	Vector2 GetSpawn();
 
 	bool isSurfaceTile(int row, int column);
 	bool IsBlock(Vector2 pos); // checks to see if there is a block placed at certain position

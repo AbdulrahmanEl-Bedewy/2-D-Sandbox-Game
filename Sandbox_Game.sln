@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32602.291
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Terraria_RipOff", "Terraria_RipOff.vcxproj", "{3FFC8EBB-F0E7-4A47-B7A6-34176529D3BA}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sandbox_Game", "Sandbox_Game.vcxproj", "{3FFC8EBB-F0E7-4A47-B7A6-34176529D3BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
