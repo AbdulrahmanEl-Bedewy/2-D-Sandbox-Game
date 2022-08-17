@@ -9,7 +9,7 @@
 #define blockHeight 18
 #define SectorWidth 2000
 #define MaxStackSize 10
-#define StorageSize 25
+#define StorageSize 50
 
 enum ItemClass
 {
