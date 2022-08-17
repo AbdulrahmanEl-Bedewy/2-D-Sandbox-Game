@@ -9,6 +9,7 @@
 #define blockHeight 18
 #define SectorWidth 2000
 #define MaxStackSize 10
+#define StorageSize 25
 
 enum ItemClass
 {
@@ -16,6 +17,7 @@ enum ItemClass
 	MeleeWeaopon,
 	RangedWeapon,
 	MageWeapon,
+	tool,
 	ammo,
 };
 
@@ -45,6 +47,7 @@ struct UIInfo
 	Texture2D Bow;
 	Texture2D Arrow;
 	Texture2D Sword;
+	Texture2D Pickaxe;
 	Texture2D Morningbackground1;
 	Texture2D Morningbackground2;
 	Texture2D Morningbackground3;
@@ -55,4 +58,5 @@ struct UIInfo
 	Texture2D Nightbackground3;
 	Texture2D Nightbackground4;
 	Texture2D Moon;
+	Music BacgroundMusic;
 };

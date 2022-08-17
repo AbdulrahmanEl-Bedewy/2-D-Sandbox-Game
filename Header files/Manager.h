@@ -59,6 +59,8 @@ public:
 
 
 	bool isSurfaceTile(int row, int column);
+	bool IsBlock(Vector2 pos); // checks to see if there is a block placed at certain position
+	Item* GetBlock(Vector2 pos); // gets block at position pos
 
 	// from world x-y coordinates to world blocks coodinate
 	Vector2 GetCoordinate(int x, int y);

@@ -2,6 +2,7 @@
 #include "../Header files/Manager.h"
 #include "../Header files/Bow.h"
 #include "../Header files/Sword.h"
+#include"../Header files/Pickaxe.h"
 #include <vector>
 using namespace std;
 
@@ -17,9 +18,9 @@ Player::Player(UIInfo* pUI): inventory(pUI)
 	isWalking = false;
 	InAir = false;
 	this->pUI = pUI;
-	texture = LoadTexture("textures/player/NPCSprites/Conrad.png");
 	inventory.Insert(new Bow(pUI, Vector2{ 0,50 }));
 	inventory.Insert(new Sword(pUI, Vector2{ 0,50 }));
+	inventory.Insert(new Pickaxe(pUI, Vector2{ 0,50 }));
 }
 
 Vector2 Player::GetPos() const
@@ -80,7 +81,6 @@ void Player::Update(Manager* pManager)
 		isWalking = false;
 	}
 
-	//Xspeed=-10;
 
 	// check for collisions for picking items and not falling 
 	for (int i = ((int)(pos.y - minPoint.y) / blockHeight) - 1; i < ((int)(pos.y - minPoint.y) / blockHeight) + 6; i++)
@@ -94,15 +94,6 @@ void Player::Update(Manager* pManager)
 				
 				if (CheckCollisionRecs(Rectangle{ pos.x + 12 + Xspeed * delta ,pos.y + Yspeed * delta,17,64 }, Rectangle{ j * blockWidth + minPoint.x , i * blockHeight + minPoint.y , blockWidth, blockHeight }))/*Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight }*/ {
 
-					//if (dirtblocks[i][j]->GetItemState() == Mined) { // picking action
-					//
-					//	if (inventory.Insert(dirtblocks[i][j])) {
-					//		dirtblocks[i][j]->setState(Picked);
-					//		pManager->RemoveBlock(i, j);
-					//	}
-
-					//}
-					//else {
 					for (int k = pickables[i][j].size()-1; k >=0 ; k--)
 					{
 						if (inventory.Insert(pickables[i][j][k]))
@@ -120,7 +111,6 @@ void Player::Update(Manager* pManager)
 						if (Xspeed != 0 && dirtpos.y - pos.y > 2 * blockHeight) {
 							pos.y -= pos.y + 63 - dirtpos.y;
 						}
-						/*else*/
 						if (Xspeed > 0 && dirtpos.y - pos.y < 2 * blockHeight && dirtpos.x > pos.x + 12)
 						{
 							Xspeed = 0;
@@ -143,12 +133,6 @@ void Player::Update(Manager* pManager)
 							br = true;
 						}
 
-						/*InAir = false;
-						Yspeed = 0;
-						pos.y = dirtpos.y - 63;
-						br = true;
-						break;
-						}*/
 					}
 				}
 			}
@@ -201,20 +185,10 @@ void Player::Update(Manager* pManager)
 
 	//inventory management
 	inventory.IncrementSelectedPos(-GetMouseWheelMove());
-	if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+
+	if (IsMouseButtonDown(MOUSE_BUTTON_LEFT))
 	{
 		inventory.UseItem(pManager);
-	}
-
-	if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT))
-	{
-		Vector2 coordinate = pManager->GetCoordinateFromScreen(GetMousePosition());
-		if (dirtblocks[coordinate.y][coordinate.x])
-		{
-			dirtblocks[coordinate.y][coordinate.x]->setState(Mined);
-			pManager->AddPickable(coordinate.y, coordinate.x, dirtblocks[coordinate.y][coordinate.x]);
-			pManager->RemoveBlock(coordinate.y, coordinate.x);
-		}
 	}
 
 	if (IsKeyPressed(KEY_ENTER)) {
@@ -245,9 +219,9 @@ void Player::draw()
 		}
 
 		if (orientation == Left)
-			DrawTexturePro(texture, Rectangle{ walkFrame * 32.0f + 4,  96 ,32,31 }, Rectangle{ pos.x, pos.y ,64,64 }, Vector2{ 0,0 }, 0.0f, WHITE);
+			DrawTexturePro(pUI->player, Rectangle{ walkFrame * 32.0f + 4,  96 ,32,31 }, Rectangle{ pos.x, pos.y ,64,64 }, Vector2{ 0,0 }, 0.0f, WHITE);
 		else
-			DrawTexturePro(texture, Rectangle{ walkFrame * 32.0f + 4, 32,32,31 }, Rectangle{ pos.x, pos.y ,64,64 }, Vector2{0,0 }, 0.0f, WHITE);
+			DrawTexturePro(pUI->player, Rectangle{ walkFrame * 32.0f + 4, 32,32,31 }, Rectangle{ pos.x, pos.y ,64,64 }, Vector2{0,0 }, 0.0f, WHITE);
 
 	
 }

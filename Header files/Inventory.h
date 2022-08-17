@@ -26,7 +26,7 @@ class Inventory
 	//int MaxStackSize; // max size of a stack (i think should be replace by a const)
 	int SelectedPos;
 	bool Expanded;
-	Stack* ItemStacks[25];
+	Stack* ItemStacks[StorageSize];
 	std::unordered_map<ItemClass, std::vector<int>> OpenStack;
 
 

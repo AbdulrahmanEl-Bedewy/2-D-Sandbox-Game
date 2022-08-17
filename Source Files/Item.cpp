@@ -1,10 +1,5 @@
 #include "../Header files/Item.h"
 
-
-
-
-
-
 void Item::setPos(Vector2 p)
 {
 	pos = p;

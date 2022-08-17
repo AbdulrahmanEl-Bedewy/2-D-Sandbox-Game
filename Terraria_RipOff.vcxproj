@@ -148,6 +148,7 @@
     <ClCompile Include="Source Files\Inventory.cpp" />
     <ClCompile Include="Source Files\Item.cpp" />
     <ClCompile Include="Source Files\Manager.cpp" />
+    <ClCompile Include="Source Files\Pickaxe.cpp" />
     <ClCompile Include="Source Files\Player.cpp" />
     <ClCompile Include="Source Files\main.cpp" />
     <ClCompile Include="Source Files\Sword.cpp" />
@@ -162,6 +163,7 @@
     <ClInclude Include="Header files\Inventory.h" />
     <ClInclude Include="Header files\Item.h" />
     <ClInclude Include="Header files\Manager.h" />
+    <ClInclude Include="Header files\Pickaxe.h" />
     <ClInclude Include="Header files\Player.h" />
     <ClInclude Include="Header files\Sword.h" />
     <ClInclude Include="Header files\World.h" />

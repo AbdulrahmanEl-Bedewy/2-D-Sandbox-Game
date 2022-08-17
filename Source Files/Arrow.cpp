@@ -16,6 +16,7 @@ Arrow::Arrow(UIInfo* p, Vector2 position)
 	Fired = false;
 	Yspeed = 0;
 	Xspeed = 0;
+	timer = 0;
 }
 
 void Arrow::UpdateItem(Manager* pManager)
@@ -27,16 +28,11 @@ void Arrow::UpdateItem(Manager* pManager)
 		 rotation = 180 - atan2f(-Yspeed, Xspeed) * (180.0f / PI);
 		 if (rotation < 0) rotation += 360.0f;
 		 Yspeed += 400 * min(GetFrameTime(), 0.05f);
-
-		
 	 }
 
+	 if (hit)
+		 timer += min(GetFrameTime(), 0.05f);
 
-
-	
-
-
-	
 	Vector2 minPoint = pManager->GetMinPoint();
 	Vector2 maxPoint = pManager->GetMaxPoint();
 	std::vector<std::vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
@@ -44,7 +40,7 @@ void Arrow::UpdateItem(Manager* pManager)
 
 
  	if (Fired) {
-		Vector2 temp = /*pManager->GetWorldXY*/(Vector2{ pos.x - 24 * cosf((this->rotation) * PI / 180) - 5 + Xspeed * min(GetFrameTime(), 0.05f), pos.y - 24 * sinf((this->rotation) * PI / 180) -5 + Yspeed * min(GetFrameTime(), 0.05f) });
+		Vector2 temp = (Vector2{ pos.x - 24 * cosf((this->rotation) * PI / 180) - 5 + Xspeed * min(GetFrameTime(), 0.05f), pos.y - 24 * sinf((this->rotation) * PI / 180) -5 + Yspeed * min(GetFrameTime(), 0.05f) });
 		for (int i = ((int)(temp.y - minPoint.y) / blockHeight) - 1; i < ((int)(temp.y - minPoint.y) / blockHeight) + 6; i++)
 		{
 			bool br = false;
@@ -73,7 +69,7 @@ void Arrow::UpdateItem(Manager* pManager)
 	pos.x += Xspeed * min(GetFrameTime(), 0.05f);
 
 	
-//	Vector2Rotate(pos, rotation);
+
 }
 
 void Arrow::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State, Vector2 Invpos)
@@ -90,7 +86,6 @@ void Arrow::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State
 
 		break;
 	case Placed:
-		//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,0 , 16 , 16 }, pos, WHITE); //for tile option 2	//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,/*64*/ 3, blockWidth , blockHeight }, pos, /*WHITE*/Color{ 215, 162, 125, 255 });
 		break;
 	case Mined:
 		DrawTexturePro(pUI->Arrow, Rectangle{ 256, 192, 64  , 64 }, Rectangle{ pos.x ,pos.y + 2.5f, 50  , 50 }, Vector2{ 0, 0 }, 0.0f, WHITE);
@@ -110,7 +105,7 @@ void Arrow::DrawName(Vector2 pos)
 
 bool Arrow::Hit()
 {
-	return hit;
+	return timer > 2;
 }
 
 void Arrow::ApplyEffect()
@@ -125,7 +120,7 @@ bool Arrow::UseItem(Manager* pManager)
 	rotation = Vector2Angle(GetMousePosition(), Vector2{ pos.x + 25,pos.y + 25 });
 	Yspeed = - 500 * sinf((180-rotation )* PI / 180);
 	Xspeed = 500 * cosf((180 - rotation) * PI / 180);
-	pos = /*pManager->GetScreenXY(*/pManager->GetPlayer()->GetPos();
+	pos = pManager->GetPlayer()->GetPos();
 	pos.y += 45;
 	pos.x += 15 ;
 	return false;

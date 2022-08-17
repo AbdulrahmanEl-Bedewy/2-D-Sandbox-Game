@@ -19,11 +19,8 @@ Manager::Manager(UIInfo* p) :player(p)
 
 	while (Progress < WorldHeight * WorldWidth && !WindowShouldClose())
 	{
-		/*if (WindowShouldClose())
-		{
-			Worker1.~thread();
-			return;
-		}*/
+		
+		UpdateMusicStream(pUI->BacgroundMusic);
 		BeginDrawing();
 		ClearBackground(WHITE);
 		DrawText("Generating World", GetScreenWidth() / 2 - MeasureText("Generating World", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
@@ -36,13 +33,7 @@ Manager::Manager(UIInfo* p) :player(p)
 	Worker1.join();
 
 
-	scrollingBack1 = 0.0f;
-	scrollingBack2 = 0.0f;
-	scrollingBack3 = 0.0f;
-	scrollingBack4 = 0.0f;
-	scrollingBackSun_Moon = 0.0f;
 
-	Day = true;
 
 	//initialize vector
 	Progress = 0;
@@ -66,12 +57,8 @@ Manager::Manager(UIInfo* p) :player(p)
 	while (Progress < WorldHeight * WorldWidth )
 	{
 
-	/*	if (WindowShouldClose())
-		{
-			Worker2.~thread();
-			return;
-		}*/
-
+	
+		UpdateMusicStream(pUI->BacgroundMusic);
 		BeginDrawing();
 		ClearBackground(WHITE);
 		DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
@@ -92,15 +79,7 @@ Manager::Manager(UIInfo* p) :player(p)
 
 	Day = true;
 	
-	//initialize vector
-	/*for (int i = 0; i < WorldHeight; i++)
-	{
-		Pickables.push_back(vector<vector<Item*>>{});
-		for (int j = 0; j < WorldWidth; j++)
-		{
-			Pickables[i].push_back(vector<Item*>{});
-		}
-	}*/
+	
 
 	camera = { 0 };
 	camera.target = Vector2{ player.GetPos().x + 20 , player.GetPos().y + 20 };;
@@ -147,7 +126,7 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		if (scrollingBack2 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
 		if (scrollingBack3 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
 		if (scrollingBack4 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
-		//if (scrollingBack5 <= -pUI->Morningbackground5.width * WindowWidth / pUI->Morningbackground5.width) scrollingBack5 = 0;
+		
 
 		//too far to right
 		if (scrollingBack1 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
@@ -164,7 +143,7 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		if (scrollingBack2 <= -pUI->Morningbackground2.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
 		if (scrollingBack3 <= -pUI->Morningbackground3.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
 		if (scrollingBack4 <= -pUI->Morningbackground4.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
-		//if (scrollingBack5 <= -pUI->Morningbackground5.width * WindowWidth / pUI->Morningbackground5.width) scrollingBack5 = 0;
+		
 
 		//too far to right
 		if (scrollingBack1 >= pUI->Morningbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
@@ -172,8 +151,8 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		if (scrollingBack3 >= pUI->Morningbackground3.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
 		if (scrollingBack4 >= pUI->Morningbackground4.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
 
-		if (scrollingBackSun_Moon >= pUI->Sun.width * WindowWidth / pUI->Sun.width) scrollingBackSun_Moon = 0;
-	//	if (scrollingBack5 >= pUI->Morningbackground5.width * WindowWidth / pUI->Morningbackground5.width) scrollingBack5 = 0;
+		if (scrollingBackSun_Moon >= pUI->Moon.width * WindowWidth / pUI->Moon.width) scrollingBackSun_Moon = 0;
+	
 
 		break;
 	default:
@@ -198,15 +177,15 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		}
 	}
 
-	for (auto it = FiredAmmo.cbegin(); it != FiredAmmo.cend() /* not hoisted */; /* no increment */)
+	for (auto it = FiredAmmo.cbegin(); it != FiredAmmo.cend() ; )
 	{
-		//if ((*it)->Hit())
-		//{
-		//	Ammo* temp = *it;
-		//	FiredAmmo.erase(it++);    // or "it = m.erase(it)" since C++11
-		//	delete temp;
-		//}
-		//else
+		if ((*it)->Hit())
+		{
+			Ammo* temp = *it;
+			FiredAmmo.erase(it++);    
+			delete temp;
+		}
+		else
 		{
 			(*it)->UpdateItem(this);
 			++it;
@@ -220,12 +199,12 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 {
 	Vector2 pos = player.GetPos();
-	camera.target.x = pos.x + 20;/*Vector2{ pos.x + 20 , pos.y + 20 };*/
+	camera.target=Vector2{ pos.x + 20 , pos.y + 20 };
 	camera.offset = Vector2{ WindowWidth / 2.0f, WindowHeight / 2.0f };
 	Vector2 max = GetWorldToScreen2D(Vector2{ maxPoint.x, maxPoint.y }, camera);
 	Vector2 min = GetWorldToScreen2D(Vector2{ minPoint.x , minPoint.y }, camera);
-	if (abs(pos.y - camera.target.y) > 10) 
-		camera.target.y += 200 * GetFrameTime()* abs(pos.y - camera.target.y)/ (pos.y - camera.target.y);
+	/*if (abs(pos.y - camera.target.y) > 10) 
+		camera.target.y += 200 * GetFrameTime()* abs(pos.y - camera.target.y)/ (pos.y - camera.target.y);*/
 	if (max.x < WindowWidth) camera.offset.x = WindowWidth - (max.x - WindowWidth / 2);
 	if (max.y < WindowHeight) camera.offset.y = WindowHeight - (max.y - WindowHeight / 2);
 	if (min.x > 0) camera.offset.x = WindowWidth / 2 - min.x;
@@ -237,56 +216,37 @@ void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 
 void Manager::GenerateWorld(int* BlocksFinished)
 {
-	float arr[WorldWidth];
 	float seed = rand();
-
-	//float fNoiseSeed1D[344];
-	//for (int i = 0; i < 344; i++) fNoiseSeed1D[i] = (float)rand() / (float)RAND_MAX;
-	//PerlinNoise1D(344, fNoiseSeed1D, 4, 0.4, arr); //6, 0.6
-
-	//for (int i = 0; i < 344; i++) {
-	//	arr[i] = (int)(arr[i] * 800) / blockHeight * blockHeight;
-	//}
-	//int test = 0;
 	float smoothness = 320.0f;
 	float modifier = 0.02; //0.03
-	for (int x = 0; x < WorldWidth; x++) {
-		//if (test % 80 == 0)
-		//	smoothness = 10;
-		//else
-		//	smoothness = 320;
-		arr[x] = (int)(SimplexNoise::noise(x / smoothness, seed) * 600 / blockHeight) * blockHeight;
-	}
+	int height = 600;
 
 	int first = 0;
 
-	for (int i = 0; i < WorldHeight /*112*/; i++)
+	for (int i = 0; i < WorldHeight ; i++)
 	{
 		vector<Item*> temp;
 		wall.push_back(vector<int>{});
-		for (int j = 0; j < WorldWidth /*344*/; j++)
+		for (int j = 0; j < WorldWidth ; j++)
 		{
+			int tempValue = (int)(SimplexNoise::noise(j / smoothness, seed) * height / blockHeight) * blockHeight;
 
-
-			if (i * blockHeight + minPoint.y < -arr[j]) /*if(j*blockHeight -5000>0)*/
+			if (i * blockHeight + minPoint.y < -tempValue) 
 			{
 				temp.push_back(NULL);
 				wall[i].push_back(0);
 			}
 			else {
 				wall[i].push_back(1);
-				if (first == 0 && j * blockWidth + minPoint.x > 0) // mined blocks to test picking up 
+				if (first == 0 && j * blockWidth + minPoint.x > 0) 
 				{
-					/*Item* d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
-					d->setState(Mined);
-					temp.push_back(d);
-					first++;*/
+					
 					SpawnPoint.x = j * blockWidth + minPoint.x;
 					SpawnPoint.y = i * blockHeight + minPoint.y - 64;
 					first++;
 				}
 
-				if (round(SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) == 0 && i * blockHeight + minPoint.y > 400 && i != WorldHeight - 1) {
+				if ((SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) < 0.3 && i * blockHeight + minPoint.y > 400 && i != WorldHeight - 1) {
 					temp.push_back(NULL);
 				}
 				else {
@@ -301,18 +261,7 @@ void Manager::GenerateWorld(int* BlocksFinished)
 	}
 
 
-	//for (int i = (minPoint.y + maxPoint.y) / 2; i < maxPoint.y; i += pUI->blockHeight)
-	//{
-	//	vector<Dirt*> temp;
-	//	for (int j = minPoint.x; j < maxPoint.x; j += pUI->blockWidth)
-	//	{
-	//		if (j == -8 || j == 24)
-	//			continue;
-	//		temp.push_back(new Dirt(pUI, Block, Vector2{ (float)j, (float)i }));
-	//	}
-	//	dirtblocks.push_back(temp);
-	//}
-	//cout << sizeof(dirtblocks) << endl << sizeof(dirtblocks[0]) << endl << sizeof(*dirtblocks[154][350]) << endl;
+	
 }
 
 bool Manager::isSurfaceTile(int row , int column) {
@@ -324,6 +273,16 @@ bool Manager::isSurfaceTile(int row , int column) {
 		return true;
 
 	return false;
+}
+
+bool Manager::IsBlock(Vector2 pos)
+{
+	return dirtblocks[pos.y][pos.x];
+}
+
+Item* Manager::GetBlock(Vector2 pos)
+{
+	return dirtblocks[pos.y][pos.x];
 }
 
 Vector2 Manager::GetCoordinate(int x, int y)
@@ -369,7 +328,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	float backgroundWidth2;
 	float backgroundWidth3;
 	float backgroundWidth4;
-	/*float MorningbackgroundWidth5 = pUI->Morningbackground5.width * WindowWidth / pUI->Morningbackground5.width;*/
+	
 
 	switch (Day)
 	{
@@ -437,10 +396,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 		break;
 	}
 
-	//DrawTexturePro(pUI->Morningbackground5, Rectangle{ 0,0,(float)pUI->Morningbackground5.width, (float)pUI->Morningbackground5.height }, Rectangle{ scrollingBack5, 0, MorningbackgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	//DrawTexturePro(pUI->Morningbackground5, Rectangle{ 0,0,(float)pUI->Morningbackground5.width, (float)pUI->Morningbackground5.height }, Rectangle{ scrollingBack5 + MorningbackgroundWidth5, 0, MorningbackgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-	//DrawTexturePro(pUI->Morningbackground5, Rectangle{ 0,0,(float)pUI->Morningbackground5.width, (float)pUI->Morningbackground5.height }, Rectangle{ scrollingBack5 - MorningbackgroundWidth5, 0, MorningbackgroundWidth5, (float)WindowHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
-
+	
 
 
 
@@ -461,7 +417,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 				{
 					DrawTexturePro(pUI->wall, Rectangle{ 21,75, 50,50 }, Rectangle{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y, blockWidth , blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
 
-					//DrawTexturePro(pUI->wall, Rectangle{ 0,0, 2048,2048 }, Rectangle{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y, blockWidth , blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+					
 				}
 				if(dirtblocks[i][j])
 					dirtblocks[i][j]->DrawItem(0, Right, Placed);
@@ -482,14 +438,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	{
 		(*i)->DrawItem(0, Right, Placed);
 	}
-	//for (int i = /*floorf((nibba.rec.y - WindowHeight + (-minPoint.y)) / (float)pUI->blockHeight)*/ 0; i < ceilf((pos.y + WindowHeight  /* + (-minPoint.y)*/) / (float)pUI->blockHeight); i++)
-	//{
-	//	for (int j = floorf((pos.x - (2 - camera.zoom) * WindowWidth + (-minPoint.x)) / 32.0f); j < ceilf((pos.x + (2 - camera.zoom)*WindowWidth + (-minPoint.x) + 32) / 32.0f); j++) // 
-	//	{
-	//		if (i < dirtblocks.size() && j < dirtblocks[i].size() && dirtblocks[i][j])
-	//			dirtblocks[i][j]->DrawItem(0, Right, Placed);
-	//	}
-	//}
+	
 
 
 	player.draw();
@@ -505,7 +454,7 @@ void Manager::DrawBackground(int WindowWidth, int WindowHeight)
 {
 }
 
-void Manager::AddPickable(int i, int j, Item* item) // might need re-implementation later
+void Manager::AddPickable(int i, int j, Item* item) 
 {
 	if(find(Pickables[i][j].begin(), Pickables[i][j].end(),item) == Pickables[i][j].end())
 		Pickables[i][j].push_back(item);	
@@ -529,6 +478,7 @@ void Manager::RemovePickable(int i, int j, Item* item)
 void Manager::RemoveBlock(int i, int j)
 {
 	dirtblocks[i][j]->setPos(j * blockWidth + minPoint.x, i * blockHeight + minPoint.y);
+	dirtblocks[i][j]->setState(Mined);
 	dirtblocks[i][j] = NULL;
 }
 
@@ -539,13 +489,6 @@ bool Manager::PlaceBlock(int i, int j, Item* item)
 	if (item->GetItemType() != Block)
 		return false;
 	if (!dirtblocks[i][j])
-	//{
-	//	dirtblocks[i][j]->setState(Mined);
-	//	//AddPickable(i, j, dirtblocks[i][j]);
-	//	dirtblocks[i][j] = item;
-	//	item->setState(Placed);
-	//}
-	//else
 	{
 		item->setState(Placed);
 		item->setPos(j * blockWidth + minPoint.x, i * blockHeight + minPoint.y);
@@ -600,9 +543,9 @@ Player* Manager::GetPlayer()
 Manager::~Manager()
 {
 
-	for (int i = 0; i < 112; i++)
+	for (int i = 0; i < WorldHeight; i++)
 	{
-		for (int j = 0; j < 344; j++)
+		for (int j = 0; j < WorldWidth; j++)
 		{
 			if (dirtblocks[i][j])
 				delete dirtblocks[i][j];

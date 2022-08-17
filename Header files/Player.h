@@ -18,7 +18,6 @@ class Player
 	bool isWalking; // if walking it animates player walking
 	bool InAir; // whether the player is standing on ground or falling
 	UIInfo* pUI;
-	Texture2D texture;
 	Inventory inventory;
 
 public:

@@ -6,67 +6,53 @@ using namespace std;
 
 int main() {
 	SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-	InitWindow(800, 400, "trial");
+	InitWindow(800, 400, "Terraria 2.0");
+	MaximizeWindow();
+	InitAudioDevice();
 	SetTargetFPS(60);
+
 
 
 	UIInfo ui_Info;
 	ui_Info.dirtDes = string{ "Block can be placed" };
 	ui_Info.dirtName = string{ "DirtBlock" };
-	ui_Info.dirtTex = LoadTexture("textures/Tiles/Forest/Tiles/Sliced/Tile_14.png"); //LoadTexture("textures / dirt.png");
-	ui_Info.wall = LoadTexture("textures/dirt2_wall.png"); //LoadTexture("textures/Text2.png");
-	ui_Info.player = LoadTexture("textures/NPCSprites/LesanUrchinMan.png");
-	ui_Info.Morningbackground1 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background1.png");  //LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-bg.png");
-	ui_Info.Morningbackground2 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background2.png");  //LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-montain-far.png");
-	ui_Info.Morningbackground3 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background3.png");	//LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-mountains.png");
-	ui_Info.Morningbackground4 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background3.png");	//LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-trees.png");
-	ui_Info.Sun = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/sun3.png");					//LoadTexture("textures/parallax_mountain_pack/layers/parallax-mountain-foreground-trees.png");
+	ui_Info.dirtTex = LoadTexture("textures/Tiles/Tile_14.png"); 
+	ui_Info.wall = LoadTexture("textures/Tiles/dirt2_wall.png"); 
+	ui_Info.player = LoadTexture("textures/player/Conrad.png");
+	ui_Info.Morningbackground1 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background1.png");  
+	ui_Info.Morningbackground2 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background2.png");  
+	ui_Info.Morningbackground3 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background3.png");	
+	ui_Info.Morningbackground4 = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/background3.png");	
+	ui_Info.Sun = LoadTexture("textures/Backgrounds/Backgound hills/_PNG/sun3.png");					
 	ui_Info.Nightbackground1 = LoadTexture("textures/Backgrounds/background_set/background1.png"); 
 	ui_Info.Nightbackground2 = LoadTexture("textures/Backgrounds/background_set/background2.png");
 	ui_Info.Nightbackground3 = LoadTexture("textures/Backgrounds/background_set/background3.png");
 	ui_Info.Nightbackground4 = LoadTexture("textures/Backgrounds/background_set/background4.png");
 	ui_Info.Moon = LoadTexture("textures/Backgrounds/background_set/Moon.png");
-	ui_Info.Bow = LoadTexture("textures/player/lpc_entry/Weapons/WEAPON_bow.png");
-	ui_Info.Sword = LoadTexture("textures/player/lpc_entry/Weapons/WEAPON_longsword.png");
-	ui_Info.Arrow = LoadTexture("textures/player/lpc_entry/Weapons/WEAPON_arrow.png");
-
-	/*Camera2D camera;
-	camera = { 0 };
-	camera.target = Vector2{ 0 ,0 };;
-	camera.offset = Vector2{ 800 / 2.0f, 400 / 2.0f };
-	camera.rotation = 0.0f;
-	camera.zoom = 1;*/
+	ui_Info.Bow = LoadTexture("textures/player/Weapons/WEAPON_bow.png");
+	ui_Info.Sword = LoadTexture("textures/player/Weapons/WEAPON_longsword.png");
+	ui_Info.Arrow = LoadTexture("textures/player/Weapons/WEAPON_arrow.png");
+	ui_Info.Pickaxe = LoadTexture("textures/player/Weapons/IconsPJ.png");
+	ui_Info.BacgroundMusic = LoadMusicStream("Textures/Road to Dazir.mp3");
 
 
-	//ui_Info.blockHeight = /*28*/ 22;
-	//ui_Info.blockWidth = 22;
-
-	//Dirt dirt(&ui_Info, Block);
+	PlayMusicStream(ui_Info.BacgroundMusic);
+	
+	
 	Manager manager(&ui_Info);
 
 
 	while (!WindowShouldClose())
 	{
+		UpdateMusicStream(ui_Info.BacgroundMusic);
 		int height = GetScreenHeight();
 		int width = GetScreenWidth();
 
-		/*BeginDrawing();
-		ClearBackground(LIGHTGRAY);
 
-		manager.DrawBackground(width, height);
-		
-		BeginMode2D(camera);*/
 
 		manager.Update(width, height);
 		manager.Draw(width, height);
 
-	/*	EndMode2D();
-		EndDrawing();*/
-
-		//BeginDrawing();
-		//ClearBackground(LIGHTGRAY);
-		//DrawTextureRec(tex, Rectangle{ 0,64,32,32 }, Vector2{ 0,368 }, WHITE);
-		//EndDrawing();
 	}
 
 	UnloadTexture(ui_Info.dirtTex);
@@ -83,6 +69,9 @@ int main() {
 	UnloadTexture(ui_Info.Nightbackground4);
 	UnloadTexture(ui_Info.Moon);
 
+	UnloadMusicStream(ui_Info.BacgroundMusic);
+	CloseAudioDevice();
+	CloseWindow();
 }
 
 

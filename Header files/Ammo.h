@@ -10,6 +10,7 @@ protected:
     float Yspeed;
     float Xspeed;
     bool hit;
+    float timer; // to disapear after hitting
 public:
     virtual bool Hit() = 0;
     virtual void ApplyEffect() = 0;

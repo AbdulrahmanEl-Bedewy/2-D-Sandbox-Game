@@ -15,12 +15,12 @@ Dirt::Dirt(UIInfo* p, ItemClass IC, Vector2 position)
 
 void Dirt::UpdateItem(Manager* pManager)
 {
-	Vector2 minPoint = pManager->GetMinPoint();
-	Vector2 maxPoint = pManager->GetMaxPoint();
-	vector<vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
 
 
 	if (itemstate == Mined) {
+		Vector2 minPoint = pManager->GetMinPoint();
+		Vector2 maxPoint = pManager->GetMaxPoint();
+		vector<vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
 		bool br = false;
 		for (int i = ((int)(pos.y - minPoint.y) / blockHeight) - 1; i < ((int)(pos.y - minPoint.y) / blockHeight) + 6; i++)
 		{
@@ -35,8 +35,8 @@ void Dirt::UpdateItem(Manager* pManager)
 						Vector2 tempPos1 = pManager->GetCoordinate(pos);
 						Vector2 tempPos2 = pManager->GetCoordinate(pos.x, dirtpos.y - blockHeight + 1);
 						if (tempPos1.y < tempPos2.y) { // if block changes coordinate while falling
-							pManager->RemovePickable(tempPos1.y, tempPos1.x, this);	 // move its position in the pickables list    /*pManager->GetCoordinate(pos).y, pManager->GetCoordinate(pos).x*/
-							pManager->AddPickable(tempPos2.y, tempPos2.x, this);  //pManager->GetCoordinate(pos.x,pos.y + Yspeed * min(GetFrameTime(),0.05f)).y, pManager->GetCoordinate(pos).x
+							pManager->RemovePickable(tempPos1.y, tempPos1.x, this);	 // move its position in the pickables list    
+							pManager->AddPickable(tempPos2.y, tempPos2.x, this);  
 						}
 
 						Yspeed = 0;
@@ -56,17 +56,17 @@ void Dirt::UpdateItem(Manager* pManager)
 		Vector2 tempPos1 = pManager->GetCoordinate(pos);
 		Vector2 tempPos2 = pManager->GetCoordinate(pos.x, pos.y + Yspeed * min(GetFrameTime(), 0.05f));
 		if ( tempPos1.y < tempPos2.y ) { // if block changes coordinate while falling
-			pManager->RemovePickable(tempPos1.y,tempPos1.x , this);	 // move its position in the pickables list    /*pManager->GetCoordinate(pos).y, pManager->GetCoordinate(pos).x*/
-			pManager->AddPickable(tempPos2.y, tempPos2.x, this);  //pManager->GetCoordinate(pos.x,pos.y + Yspeed * min(GetFrameTime(),0.05f)).y, pManager->GetCoordinate(pos).x
+			pManager->RemovePickable(tempPos1.y,tempPos1.x , this);	 // move its position in the pickables list    
+			pManager->AddPickable(tempPos2.y, tempPos2.x, this);  
 		}
 		pos.y += Yspeed * min(GetFrameTime(), 0.05f);
 	}
-	
-	if(itemstate == Onhand)
+
+	else if(itemstate == Onhand)
 		pos = pManager->GetScreenXY(pManager->GetPlayer()->GetPos());
 }
 
-// to-do later
+
 void Dirt::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State, Vector2 Invpos)
 {
 	switch (itemstate)
@@ -87,11 +87,10 @@ void Dirt::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State,
 		DrawTextureRec(pUI->dirtTex, Rectangle{ 0, 3, blockWidth  , blockHeight }, Invpos, Fade(BROWN, 0.5));
 		break;
 	case Placed:
-		DrawTexturePro(pUI->dirtTex, Rectangle{ 1, 1, 15, 15 }, Rectangle{ pos.x ,pos.y , blockWidth  , blockHeight }, Vector2{ 0, 0 }, 0.0f, WHITE);	//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,0 , 16 , 16 }, pos, WHITE); //for tile option 2	//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,/*64*/ 3, blockWidth , blockHeight }, pos, /*WHITE*/Color{ 215, 162, 125, 255 });
+		DrawTexturePro(pUI->dirtTex, Rectangle{ 1, 1, 15, 15 }, Rectangle{ pos.x ,pos.y , blockWidth  , blockHeight }, Vector2{ 0, 0 }, 0.0f, WHITE);	
 		break;
 	case Mined:
 		DrawTexturePro(pUI->dirtTex, Rectangle{ 0, 0, 16 , 16 }, Rectangle{ pos.x + 2.5f,pos.y + 2.5f, blockWidth - 5 , blockHeight - 5 }, Vector2{ 0, 0 }, 0.0f, WHITE);
-		//DrawTextureEx(pUI->dirtTex, pos, rotation, 1.0, WHITE);
 		break;
 	case Picked:
 		DrawTextureRec(pUI->dirtTex, Rectangle{ 0, 3, blockWidth  , blockHeight }, Invpos, Fade(BROWN,0.5));
@@ -112,7 +111,6 @@ bool Dirt::UseItem(Manager* pMmanager)
 	Vector2 PlayerPos = pMmanager->GetPlayer()->GetPos();
 	PlayerPos.x += 12;
 	PlayerPos.y += 32;
-	//pMmanager->GetCoordinate(MousePos)
 	
 	if (!CheckCollisionPointCircle(MousePos, PlayerPos, 120))
 		return false;

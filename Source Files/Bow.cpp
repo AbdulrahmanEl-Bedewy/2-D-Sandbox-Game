@@ -21,52 +21,53 @@ Bow::Bow(UIInfo* p, Vector2 position)
 
 void Bow::UpdateItem(Manager* pManager)
 {
-	if (animate && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
+	if (itemstate == Onhand)
 	{
-		animate = false;
-		timer = 0;
-		frame = 0;
-		FiringTimer = 0;
-	}
-	else if (animate) {
-		timer += min(GetFrameTime(), 0.05f);
-		FiringTimer += min(GetFrameTime(), 0.05f);
-		if (timer >= 0.125)
+		if (animate && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
 		{
+			animate = false;
 			timer = 0;
-			frame = ++frame % 8;
-		}
-		if (FiringTimer >= 1.0f / FireSpeed)
-		{
+			frame = 0;
 			FiringTimer = 0;
 		}
-		if ((rotation > 90 && rotation < 270) && pManager->GetPlayer()->GetOrientation() == Left) {
-			pManager->GetPlayer()->SetOrientation(Right);
-		}
-		else if ((rotation < 90 || rotation > 270) && pManager->GetPlayer()->GetOrientation() == Right)
-		{
-			pManager->GetPlayer()->SetOrientation(Left);
-		}
-	}
-	else
-	{
-		if (pManager->GetPlayer()->GetOrientation() == Left)
-		{
-			rotation = -45 + 360;
+		else if (animate) {
+			timer += min(GetFrameTime(), 0.05f);
+			FiringTimer += min(GetFrameTime(), 0.05f);
+			if (timer >= 0.125)
+			{
+				timer = 0;
+				frame = ++frame % 8;
+			}
+			if (FiringTimer >= 1.0f / FireSpeed)
+			{
+				FiringTimer = 0;
+			}
+			if ((rotation > 90 && rotation < 270) && pManager->GetPlayer()->GetOrientation() == Left) {
+				pManager->GetPlayer()->SetOrientation(Right);
+			}
+			else if ((rotation < 90 || rotation > 270) && pManager->GetPlayer()->GetOrientation() == Right)
+			{
+				pManager->GetPlayer()->SetOrientation(Left);
+			}
 		}
 		else
 		{
-			rotation = 225;
+			if (pManager->GetPlayer()->GetOrientation() == Left)
+			{
+				rotation = -45 + 360;
+			}
+			else
+			{
+				rotation = 225;
+			}
 		}
+		pos = pManager->GetScreenXY(pManager->GetPlayer()->GetPos());
 	}
-	pos = pManager->GetScreenXY(pManager->GetPlayer()->GetPos());
-	Vector2 minPoint = pManager->GetMinPoint();
-	Vector2 maxPoint = pManager->GetMaxPoint();
-	std::vector<std::vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
-
-
-
-	if (itemstate == Mined) {
+	else if (itemstate == Mined) {
+		Vector2 minPoint = pManager->GetMinPoint();
+		Vector2 maxPoint = pManager->GetMaxPoint();
+		std::vector<std::vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
+		bool br = false;
 		for (int i = ((int)(pos.y - minPoint.y) / blockHeight) - 1; i < ((int)(pos.y - minPoint.y) / blockHeight) + 6; i++)
 		{
 			bool br = false;
@@ -75,23 +76,37 @@ void Bow::UpdateItem(Manager* pManager)
 				if (i > 0 && j > 0 && i < WorldHeight && j < WorldWidth && dirtblocks[i][j]) {
 
 					Vector2 dirtpos = dirtblocks[i][j]->GetPos();
-					if (CheckCollisionRecs(Rectangle{ pos.x ,pos.y + Yspeed * GetFrameTime(),64,64 }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {
+					if (dirtpos.y > pos.y && CheckCollisionRecs(Rectangle{ pos.x ,pos.y + Yspeed * min(GetFrameTime(), 0.05f) ,30,30 }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {
+
+						Vector2 tempPos1 = pManager->GetCoordinate(pos);
+						Vector2 tempPos2 = pManager->GetCoordinate(pos.x, dirtpos.y - blockHeight + 1);// coordinate of block position just above ground
+						if (tempPos1.y < tempPos2.y) { // if block changes coordinate while falling
+							pManager->RemovePickable(tempPos1.y, tempPos1.x, this);	 // move its position in the pickables list    
+							pManager->AddPickable(tempPos2.y, tempPos2.x, this);  
+						}
+
 						Yspeed = 0;
-						pos.y = dirtpos.y - 63;
+						pos.y = dirtpos.y - 30 + 1;
 						br = true;
 						break;
-					}
-					else
-					{
-						Yspeed = (Yspeed > 650) ? 650 : Yspeed + 700 * GetFrameTime();
 					}
 				}
 			}
 			if (br)
 				break;
+
 		}
+		if (!br)
+			Yspeed = (Yspeed + 100 * GetFrameTime() > 150) ? 150 : Yspeed + 100 * min(GetFrameTime(), 0.05f);
+
+		Vector2 tempPos1 = pManager->GetCoordinate(pos);
+		Vector2 tempPos2 = pManager->GetCoordinate(pos.x, pos.y + Yspeed * min(GetFrameTime(), 0.05f));
+		if (tempPos1.y < tempPos2.y) { // if block changes coordinate while falling
+			pManager->RemovePickable(tempPos1.y, tempPos1.x, this);	 // move its position in the pickables list    
+			pManager->AddPickable(tempPos2.y, tempPos2.x, this);  
+		}
+		pos.y += Yspeed * min(GetFrameTime(), 0.05f);
 	}
-	pos.y += Yspeed * GetFrameTime();
 }
 
 void Bow::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State, Vector2 Invpos)
@@ -105,18 +120,18 @@ void Bow::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State, 
 		}
 		else
 		{
-			DrawTexturePro(pUI->Bow, Rectangle{ 192.0f + frame * 64, 64, 64 , 64 }, Rectangle{ pos.x + 27 ,pos.y + 45, 50 , 50 }, Vector2{ 17.1875, 30.078125 }, this->rotation, WHITE);//DrawTexturePro(pUI->Bow, Rectangle{ 128.0f + frame * 64, 192.0f, 64 , 64 }, Rectangle{ pos.x + 2.0f,pos.y + 15, 50 , 50 }, Vector2{ 25, 25 }, this->rotation, WHITE);
+			DrawTexturePro(pUI->Bow, Rectangle{ 192.0f + frame * 64, 64, 64 , 64 }, Rectangle{ pos.x + 27 ,pos.y + 45, 50 , 50 }, Vector2{ 17.1875, 30.078125 }, this->rotation, WHITE);
 		}
 		DrawTexturePro(pUI->Bow, Rectangle{ 256, 192, 64  , 64 }, Rectangle{ Invpos.x - 15 ,Invpos.y - 10 , 30  , 30 }, Vector2{ 0, 0 }, 0.0f, WHITE);
 		break;
 	case Placed:
-		//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,0 , 16 , 16 }, pos, WHITE); //for tile option 2	//DrawTextureRec(pUI->dirtTex, Rectangle{ 0,/*64*/ 3, blockWidth , blockHeight }, pos, /*WHITE*/Color{ 215, 162, 125, 255 });
+		
 		break;
 	case Mined:
-		DrawTexturePro(pUI->Bow, Rectangle{ 256, 192, 64  , 64 }, Rectangle{ pos.x ,pos.y + 2.5f, 50  , 50 }, Vector2{ 0, 0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Bow, Rectangle{ 256, 192, 64  , 64 }, Rectangle{ pos.x  ,pos.y , 30  , 30 }, Vector2{ 0, 0 }, 0.0f, WHITE);
 		break;
 	case Picked:
-		DrawTexturePro(pUI->Bow, Rectangle{ 256, 192, 64  , 64 }, Rectangle{ Invpos.x ,Invpos.y , blockWidth - 5 , blockHeight - 5 }, Vector2{ 0, 0 }, 0.0f, WHITE);
+		DrawTexturePro(pUI->Bow, Rectangle{ 256, 192, 64  , 64 }, Rectangle{ Invpos.x - 15 ,Invpos.y - 10 , 30  , 30 }, Vector2{ 0, 0 }, 0.0f, WHITE);
 		break;
 	default:
 		break;

@@ -11,7 +11,7 @@ Inventory::Inventory(UIInfo* p /* for testing*/)
 	//MaxStackSize = 10;
 	SelectedPos = 0;
 	Expanded = false;
-	for (int i = 0; i < 25; i++) ItemStacks[i] = nullptr;
+	for (int i = 0; i < StorageSize; i++) ItemStacks[i] = nullptr;
 }
 
 Stack* Inventory::getStackFromPos(int p)
@@ -21,7 +21,7 @@ Stack* Inventory::getStackFromPos(int p)
 
 int Inventory::GetOpenStackPos()
 {
-	for (int i = 0; i < 25; i++)
+	for (int i = 0; i < StorageSize; i++)
 	{
 		if (!ItemStacks[i])
 			return i;
@@ -35,7 +35,7 @@ void Inventory::RemoveStack(int pos)
 	if (OpenStack.find(ItemStacks[pos]->items[0]->GetItemType()) != OpenStack.end()) {
 		
 		vector<int> &temp =  OpenStack.find(ItemStacks[pos]->items[0]->GetItemType())->second;
-		//OpenStack.find(ItemStacks[pos]->items[0]->GetItemType())->second.erase(OpenStack.find(ItemStacks[pos]->items[0]->GetItemType())->second.begin());
+
 			if (temp.size() == 1)
 			{
 				OpenStack.erase(ItemStacks[pos]->items[0]->GetItemType());
@@ -60,7 +60,7 @@ void Inventory::RemoveStack(int pos)
 
 bool Inventory::Insert(Item* item)
 {
-	if ( Size == 25 && OpenStack.find(item->GetItemType()) == OpenStack.end()) // full storage
+	if ( Size == StorageSize && OpenStack.find(item->GetItemType()) == OpenStack.end()) // full storage
 		return false;
 	if (OpenStack.find(item->GetItemType()) == OpenStack.end()) { //  first time picking this item OR first un-filled stack
 		Stack* stack = new Stack{ 0 };
@@ -72,18 +72,11 @@ bool Inventory::Insert(Item* item)
 		Size++;
 		return true;
 	}
-	//else if (OpenStack.find(item->GetItemType())->second->StackSize == MaxStackSize) // alraedy full stack
-	//{
-	//	fullStacks.push_back(Items.find(item->GetItemType())->second);
-	//	Items.erase(item->GetItemType());
-	//	return Insert(item);
-	//}
 	else
 	{
 		Stack*& stack = ItemStacks[OpenStack.find(item->GetItemType())->second[0]];
 		stack->items[stack->StackSize] = item;
 		stack->StackSize++;
-		//ItemStacks[OpenStack.find(item->GetItemType())->second[0]]->StackSize++;
 		if ( stack->StackSize >= MaxStackSize) // stack is now full
 		{
 			OpenStack.find(item->GetItemType())->second.erase(OpenStack.find(item->GetItemType())->second.begin());
@@ -112,7 +105,7 @@ void Inventory::DrawItems(PlayerOrientaion Orientation)
 
 		}
 
-		for (int i = 0; i < 25; i++)
+		for (int i = 0; i < StorageSize; i++)
 		{
 			if (ItemStacks[i]) {
 				int y = 30;
@@ -143,7 +136,7 @@ void Inventory::DrawItems(PlayerOrientaion Orientation)
 
 		}
 
-		for (int i = 0; i < 25; i++)
+		for (int i = 0; i < StorageSize; i++)
 		{
 			if (ItemStacks[i]) {
 				int y = 30;
@@ -164,7 +157,7 @@ void Inventory::DrawItems(PlayerOrientaion Orientation)
 
 void Inventory::UseItem(Manager* pManager)
 {
-	if (SelectedPos > 25 || ItemStacks[SelectedPos] == nullptr)
+	if (SelectedPos > StorageSize || ItemStacks[SelectedPos] == nullptr)
 		return;
 	if ((ItemStacks[SelectedPos]->items[0])->UseItem(pManager)) { //if used remove 1 from stack. if stack empty remove stack
 
@@ -180,8 +173,8 @@ void Inventory::UseItem(Manager* pManager)
 					OpenStack.insert({ ItemStacks[SelectedPos]->items[0]->GetItemType(), vector<int>{SelectedPos} });
 
 			}
-			//ItemStacks[SelectedPos]->items[0] = nullptr;
-			ItemStacks[SelectedPos]->items[0] = ItemStacks[SelectedPos]->items[  ItemStacks[SelectedPos]->StackSize-1  ];//erase(ItemStacks[SelectedPos]->items.begin());
+			
+			ItemStacks[SelectedPos]->items[0] = ItemStacks[SelectedPos]->items[  ItemStacks[SelectedPos]->StackSize-1  ];
 			ItemStacks[SelectedPos]->StackSize--;
 			ItemStacks[SelectedPos]->items[0]->setState(Onhand);
 		}
@@ -211,11 +204,36 @@ void Inventory::UpdateSelected(Manager* pManager)
 {
 	if(ItemStacks[SelectedPos])
 	ItemStacks[SelectedPos]->items[0]->UpdateItem(pManager);
+
+	if (IsKeyPressed(KEY_T)) {
+
+		Vector2 playerPos = pManager->GetPlayer()->GetPos();
+		playerPos.y += 32;
+
+		if (pManager->GetPlayer()->GetOrientation() == Left)
+			playerPos.x -= blockWidth;
+		else
+			playerPos.x += 3*blockWidth;
+
+		Vector2 playerCoordinate = pManager->GetCoordinate(playerPos);
+
+		for (int i = 0; i < ItemStacks[SelectedPos]->StackSize; i++)
+		{
+			ItemStacks[SelectedPos]->items[i]->setState(Mined);
+			ItemStacks[SelectedPos]->items[i]->setPos(playerPos);
+			pManager->AddPickable(playerCoordinate.y, playerCoordinate.x,ItemStacks[SelectedPos]->items[i]);
+		}
+
+		ItemStacks[SelectedPos]->StackSize = 0;
+
+		RemoveStack(SelectedPos);
+	}
+		
 }
 
 Inventory::~Inventory()
 {
-	for (size_t i = 0; i < 25; i++)
+	for (size_t i = 0; i < StorageSize; i++)
 	{
 		if (ItemStacks[i])
 		{
