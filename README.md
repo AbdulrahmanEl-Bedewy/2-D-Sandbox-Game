@@ -3,7 +3,7 @@
 
 # About
 ## World Generation
-#### The terrain generation is done by generating psuedo random values at each block position and then process the values to decide whether or not to add blocks/walls. Above a certain height 1-D perlin noise is used to determine the height of blocks at each column and thus create surface hills. Below a certain height we switch to using 2-D perlin noise, the value returned is compared to a threshold if its above that threshold a block is placed otherwise it is left empty creating underground caves.
+#### The terrain generation is done by generating psuedo random values at each block position and then processing the values to decide whether or not to add blocks/walls. Above a certain height 1-D perlin noise is used to determine the height of blocks at each column and thus create surface hills. Below a certain height we switch to using 2-D perlin noise, the value returned is compared to a threshold if its above that threshold a block is placed otherwise it is left empty creating underground caves.
 
 ### Surface
 ![Surface](https://user-images.githubusercontent.com/96942793/185235032-0e3fac5a-4d5e-45ec-80fd-7a69baa15714.png)
@@ -15,7 +15,7 @@
 
 
 ## Colision Resolution
-#### A basic grid system is used to resolve any collisions. 
+#### A basic grid system and AABB collision detection method are used to resolve any collisions. 
 ![Collisions GIF](https://github.com/AbdulrahmanEl-Bedewy/Terraria_RipOff/blob/b534d088d7aa32587ee02e0116a0b92d0e9ce9a4/ScreenShots/Collision.gif)
 
 
