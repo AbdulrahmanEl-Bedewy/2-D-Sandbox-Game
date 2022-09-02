@@ -46,7 +46,7 @@ void Arrow::UpdateItem(Manager* pManager)
 			bool br = false;
 			for (int j = ((int)(temp.x - minPoint.x) / blockHeight) - 4; j < (int)(temp.x - minPoint.x) / blockHeight + 4; j++) // 
 			{
-				if (i > 0 && j > 0 && i < WorldHeight && j < WorldWidth && dirtblocks[i][j]) {
+				if (i > 0 && j > 0 && i < pManager->GetWorldHeight() && j < pManager->GetWorldWidth() && dirtblocks[i][j]) {
 
 					Vector2 dirtpos = dirtblocks[i][j]->GetPos();
 					if (CheckCollisionRecs(Rectangle{ temp.x, temp.y,10,10 }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {

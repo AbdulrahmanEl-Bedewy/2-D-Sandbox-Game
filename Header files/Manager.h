@@ -6,6 +6,8 @@
 #include <unordered_set>
 
 class Ammo;
+class World;
+
 
 class Manager
 {
@@ -18,11 +20,14 @@ class Manager
 	Vector2 maxPoint;
 	Vector2 SpawnPoint;
 	Player player;
-	std::vector<std::vector<Item*>> dirtblocks; // change name to blocks
+	std::vector<std::vector<Item*>>::const_iterator dirtblocks; // change name to blocks
 	std::vector<std::vector<int>> wall;		 // change to vector<vector<**SomeType WAll***>> when dealing with multiple biomes and walls
 	std::vector<std::vector<std::vector<Item*>>> Pickables; // maybe change it to vector<vector<vector<Item*>>> to have multiple items at same location
 									 // at each coordinate a vector of items that can be picked
 	std::unordered_set<Ammo*> FiredAmmo;
+
+	World* world;
+	ScreenState screenstate;
 
 	// for handling background movement
 	float scrollingBack1;
@@ -31,7 +36,19 @@ class Manager
 	float scrollingBack4;
 	float scrollingBackSun_Moon; 
 	
+	int WorldHeight;
+	int  WorldWidth;
+
 	bool Day; //day or night
+
+	int WorldCount = 0;
+	char** Worlds;
+	const char* Menu[4];
+	const char* Sizes[3];
+	const char* PauseMenu[3];
+	std::string Name;
+	int ChosenSize;
+	ScreenState Previous;
 
 	/*void UpdatePlayer(int WindowWidth, int WindowHeight);*/
 	void UpdateCam(int WindowWidth, int WindowHeight);
@@ -46,7 +63,7 @@ public:
 	void AddPickable(int i,int j,Item* item);
 	void RemovePickable(int i, int j, Item* item);
 	void RemoveBlock(int i, int j);
-	bool PlaceBlock(int x, int y,Item* item); //
+	bool PlaceBlock(int x, int y,Item* item); 
 	bool PlaceBlock(Vector2 pos, Item* item);
 	void AddFiredAmmo(Ammo* ammo);
 	void RemoveFiredAmmo(Ammo* ammo);
@@ -57,6 +74,8 @@ public:
 	std::vector< std::vector< std::vector< Item* > > >::const_iterator GetPickables();
 	Player* GetPlayer();
 	Vector2 GetSpawn();
+	int GetWorldHeight();
+	int GetWorldWidth();
 
 	bool isSurfaceTile(int row, int column);
 	bool IsBlock(Vector2 pos); // checks to see if there is a block placed at certain position

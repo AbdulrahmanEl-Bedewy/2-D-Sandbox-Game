@@ -88,7 +88,7 @@ void Player::Update(Manager* pManager)
 		bool br = false;
 		for (int j = ((int)(pos.x - minPoint.x) / blockHeight) - 4; j < (int)(pos.x - minPoint.x) / blockHeight + 4; j++) // 
 		{
-			if (i>0 && j > 0 &&i < WorldHeight && j < WorldWidth ) {
+			if (i>0 && j > 0 &&i < pManager->GetWorldHeight() && j < pManager->GetWorldWidth() ) {
 			
 				
 				

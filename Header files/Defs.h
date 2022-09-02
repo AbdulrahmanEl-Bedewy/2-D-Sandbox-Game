@@ -3,8 +3,12 @@
 #include "raylib.h"
 
 
-#define WorldWidth 1500 // in blocks
-#define WorldHeight 1500 //in blocks
+#define Small_WorldWidth 150 // in blocks
+#define Small_WorldHeight 150 //in blocks
+#define Medium_WorldWidth 750 // in blocks
+#define Medium_WorldHeight 750 //in blocks
+#define Large_WorldWidth 1500 // in blocks
+#define Large_WorldHeight 1500 //in blocks
 #define blockWidth 18
 #define blockHeight 18
 #define SectorWidth 2000
@@ -33,6 +37,22 @@ enum PlayerOrientaion
 {
 	Left,
 	Right
+};
+
+enum ScreenState {
+	Worlds_List,
+	Generate_World,
+	Settings,
+	Main_Menu,
+	Loading,
+	Game,
+	Pause
+};
+
+enum WorldSize {
+	Small,
+	Medium,
+	Large
 };
 
 struct UIInfo

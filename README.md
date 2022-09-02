@@ -49,10 +49,11 @@ Day/Night cycle
 - Mouse left click to use selected item
 - Scroll wheel to change selected item in hotbar
 - R to reset player position to spawn point
+- P to pause
 
 ## Task List
 - [ ] Improve collisions 
-- [ ] Add world save/load functionality
+- [x] Add world save/load functionality
 - [ ] Improve memory usage by loading chunks of the world
 - [ ] Add moving enemies
 - [ ] Add ores

@@ -89,7 +89,7 @@ void Pickaxe::UpdateItem(Manager* pManager)
 			bool br = false;
 			for (int j = ((int)(pos.x - minPoint.x) / blockHeight) - 4; j < (int)(pos.x - minPoint.x) / blockHeight + 4; j++) // 
 			{
-				if (i > 0 && j > 0 && i < WorldHeight && j < WorldWidth && dirtblocks[i][j]) {
+				if (i > 0 && j > 0 && i < pManager->GetWorldHeight() && j < pManager->GetWorldWidth() && dirtblocks[i][j]) {
 
 					Vector2 dirtpos = dirtblocks[i][j]->GetPos();
 					if (dirtpos.y > pos.y && CheckCollisionRecs(Rectangle{ pos.x ,pos.y + Yspeed * min(GetFrameTime(), 0.05f) ,30,30 }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {

@@ -1,6 +1,7 @@
 #include "..\Header files\Manager.h"
 #include "../SimpleNoise/SimplexNoise.h"
 #include "../Header files/Ammo.h"
+#include "../Header files/World.h"
 #include <thread>
 //#include <iostream>
 using namespace std;
@@ -8,14 +9,18 @@ using namespace std;
 Manager::Manager(UIInfo* p) :player(p)
 {
 	pUI = p;
-
-	minPoint = Vector2{ -WorldWidth / 2 * blockWidth ,-WorldHeight / 2 * blockHeight };
-	maxPoint = Vector2{ WorldWidth / 2 * blockWidth ,WorldHeight / 2 * blockHeight };
 	
 
 	int Progress = 0;
 
-	thread Worker1(&Manager::GenerateWorld, this, &Progress);
+	
+	int x;
+	//world.GenerateWorld(&x);
+	//world.LoadWorld("world_test.txt");
+	//wall = world.GetWall();
+	//dirtblocks = world.GetBlocks();
+	//world.SaveWorld();
+	/*thread Worker1(&Manager::GenerateWorld, this, &Progress);
 
 	while (Progress < WorldHeight * WorldWidth && !WindowShouldClose())
 	{
@@ -30,45 +35,45 @@ Manager::Manager(UIInfo* p) :player(p)
 		EndDrawing();
 	}
 
-	Worker1.join();
+	Worker1.join();*/
 
 
 
 
 	//initialize vector
-	Progress = 0;
+	//Progress = 0;
 
-	thread Worker2([&] (int* Progress){
-		for (int i = 0; i < WorldHeight; i++)
-		{
-			vector<vector<Item*>> temp;
-			//Pickables.push_back(vector<vector<Item*>>{});
-			for (int j = 0; j < WorldWidth; j++)
-			{
-				temp.push_back(vector<Item*>{});
-				(*Progress)++;
-			}
-			Pickables.push_back(temp);
-		}
+	//thread Worker2([&](int* Progress) {
+	//	for (int i = 0; i < WorldHeight; i++)
+	//	{
+	//		vector<vector<Item*>> temp;
+	//		//Pickables.push_back(vector<vector<Item*>>{});
+	//		for (int j = 0; j < WorldWidth; j++)
+	//		{
+	//			temp.push_back(vector<Item*>{});
+	//			(*Progress)++;
+	//		}
+	//		Pickables.push_back(temp);
+	//	}
 
-		},&Progress);
+	//	}, &Progress);
 
 
-	while (Progress < WorldHeight * WorldWidth )
-	{
+	//while (Progress < WorldHeight * WorldWidth)
+	//{
 
-	
-		UpdateMusicStream(pUI->BacgroundMusic);
-		BeginDrawing();
-		ClearBackground(WHITE);
-		DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
 
-		DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
+	//	UpdateMusicStream(pUI->BacgroundMusic);
+	//	BeginDrawing();
+	//	ClearBackground(WHITE);
+	//	DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
 
-		EndDrawing();
-	}
+	//	DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
 
-	Worker2.join();
+	//	EndDrawing();
+	//}
+
+	//Worker2.join();
 
 
 	scrollingBack1 = 0.0f;
@@ -78,7 +83,26 @@ Manager::Manager(UIInfo* p) :player(p)
 	scrollingBackSun_Moon = 0.0f;
 
 	Day = true;
+
+	Menu[0] = "Load World";
+	Menu[1] = "Generate World";
+	Menu[2] = "Setting";
+	Menu[3] = "Exit";
+
+	Sizes[0] = "Small";
+	Sizes[1] = "Medium";
+	Sizes[2] = "Large";
+
+	PauseMenu[0] = "Resume";
+	PauseMenu[1] = "Settings";
+	PauseMenu[2] = "Exit";
+
+	Name = "";
+
+	ChosenSize = -1;
 	
+	screenstate = Main_Menu;
+
 	
 
 	camera = { 0 };
@@ -87,109 +111,415 @@ Manager::Manager(UIInfo* p) :player(p)
 	camera.rotation = 0.0f;
 	camera.zoom = 1;
 
-	player.SetPos(SpawnPoint);
+	
 }
 
 void Manager::Update(int WindowWidth, int WindowHeight)
 {
-
-	player.Update(this);
-	UpdateCam(WindowWidth, WindowHeight);
-
-
-	//incrementing variables for background movement
-	scrollingBackSun_Moon += 5* GetFrameTime();
-	if (scrollingBackSun_Moon >= 1600)
+	switch (screenstate)
 	{
-		Day = !Day;
-		scrollingBackSun_Moon = 0;
-	}
+	case Main_Menu:
+		scrollingBackSun_Moon += 200 * GetFrameTime();
+		scrollingBack1 -= 0.3f;
+		scrollingBack2 -= 0.6f;
+		scrollingBack3 -= 2.1f;
+		scrollingBack4 -= 3.0f;
 
-	if (player.GetSpeedX() < 0) {
-		scrollingBack1 += 0.1f;
-		scrollingBack2 += 0.2f;
-		scrollingBack3 += 0.7f;
-		scrollingBack4 += 1.0f;
-	}
-	else if (player.GetSpeedX() > 0) {
-		scrollingBack1 -= 0.1f;
-		scrollingBack2 -= 0.2f;
-		scrollingBack3 -= 0.7f;
-		scrollingBack4 -= 1.0f;
-	}
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Load World",50) / 2,WindowHeight / 2.0f - (50 + 25), (float)MeasureText("Load World",50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				Worlds = GetDirectoryFiles("Worlds", &WorldCount);
+				screenstate = Worlds_List;
+			}
+		}
 
-	switch (Day)
-	{
-	case 0:
-		// went too far to left
-		if (scrollingBack1 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
-		if (scrollingBack2 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
-		if (scrollingBack3 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
-		if (scrollingBack4 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
-		
 
-		//too far to right
-		if (scrollingBack1 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
-		if (scrollingBack2 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
-		if (scrollingBack3 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
-		if (scrollingBack4 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
-		
-		if (scrollingBackSun_Moon >= pUI->Moon.width * WindowWidth / pUI->Moon.width) scrollingBackSun_Moon = 0;
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Generate World",50) / 2,WindowHeight / 2.0f - 25, (float)MeasureText("Generate World",50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				screenstate = Generate_World;
+
+			}
+
+		}
+
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{  WindowWidth / 2.0f - MeasureText("Setting",50) / 2,WindowHeight / 2.0f + 25, (float)MeasureText("Setting",50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				Previous = Main_Menu;
+				screenstate = Settings;
+			}
+
+		}
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Exit",50) / 2,WindowHeight / 2.0f + (50 + 25), (float)MeasureText("Exit",50),50 }))
+		{
+
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				CloseWindow();
+				CloseAudioDevice();
+			}
+
+		}
+
 		break;
-	case 1:
+	case Worlds_List:
+		scrollingBackSun_Moon += 200 * GetFrameTime();
+		scrollingBack1 -= 0.3f;
+		scrollingBack2 -= 0.6f;
+		scrollingBack3 -= 2.1f;
+		scrollingBack4 -= 3.0f;
 
-		 // went too far to left
-		if (scrollingBack1 <= -pUI->Morningbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
-		if (scrollingBack2 <= -pUI->Morningbackground2.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
-		if (scrollingBack3 <= -pUI->Morningbackground3.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
-		if (scrollingBack4 <= -pUI->Morningbackground4.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+		for (int i = 2; i < WorldCount; i++) {
+			if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText(Worlds[i], 50) / 2, WindowHeight / 2 - 0.3f * WindowHeight + (i - 2) * 55, (float)MeasureText(Worlds[i],50),50 }))
+			{
+				if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+					world = new World(pUI);
+					world->LoadWorld(Worlds[i]);
+					dirtblocks = world->GetBlocks();
+					wall = world->GetWall();
+					WorldHeight = world->GetWorldHeight();
+					WorldWidth = world->GetWorldWidth();
+					player.SetPos(world->GetSpawnPoint());
+					minPoint = Vector2{ -WorldWidth / 2.0f * blockWidth ,-WorldHeight / 2.0f * blockHeight };
+					maxPoint = Vector2{ WorldWidth / 2.0f * blockWidth ,WorldHeight / 2.0f * blockHeight };
+					int Progress = 0;
+
+					thread Worker2([&](int* Progress) {
+						for (int i = 0; i < WorldHeight; i++)
+						{
+							vector<vector<Item*>> temp;
+							//Pickables.push_back(vector<vector<Item*>>{});
+							for (int j = 0; j < WorldWidth; j++)
+							{
+								temp.push_back(vector<Item*>{});
+								(*Progress)++;
+							}
+							Pickables.push_back(temp);
+						}
+
+						}, &Progress);
+
+
+					while (Progress < WorldHeight * WorldWidth)
+					{
+
+
+						UpdateMusicStream(pUI->BacgroundMusic);
+						BeginDrawing();
+						ClearBackground(WHITE);
+						DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
+
+						DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
+
+						EndDrawing();
+					}
+
+					Worker2.join();
+					screenstate = Game;
+				}
+			}
+		}
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2,  WindowHeight / 2 + 0.3f * WindowHeight + 50, (float)MeasureText("Back", 50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				screenstate = Main_Menu;
+			}
+		}
 		
+		break;
+	case Loading:
+		scrollingBackSun_Moon += 200 * GetFrameTime();
+		scrollingBack1 -= 0.3f;
+		scrollingBack2 -= 0.6f;
+		scrollingBack3 -= 2.1f;
+		scrollingBack4 -= 3.0f;
+		break;
 
-		//too far to right
-		if (scrollingBack1 >= pUI->Morningbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
-		if (scrollingBack2 >= pUI->Morningbackground2.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
-		if (scrollingBack3 >= pUI->Morningbackground3.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
-		if (scrollingBack4 >= pUI->Morningbackground4.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+	case Game:
+		player.Update(this);
+		UpdateCam(WindowWidth, WindowHeight);
 
-		if (scrollingBackSun_Moon >= pUI->Moon.width * WindowWidth / pUI->Moon.width) scrollingBackSun_Moon = 0;
-	
 
+		//incrementing variables for background movement
+		scrollingBackSun_Moon += 5 * GetFrameTime();
+
+		if (player.GetSpeedX() < 0) {
+			scrollingBack1 += 0.1f;
+			scrollingBack2 += 0.2f;
+			scrollingBack3 += 0.7f;
+			scrollingBack4 += 1.0f;
+		}
+		else if (player.GetSpeedX() > 0) {
+			scrollingBack1 -= 0.1f;
+			scrollingBack2 -= 0.2f;
+			scrollingBack3 -= 0.7f;
+			scrollingBack4 -= 1.0f;
+		}
+
+
+		// updating each mined item for item falling effect when mined
+		Vector2 CenterPos = GetScreenToWorld2D(Vector2{ WindowWidth / 2.0f,WindowHeight / 2.0f }, camera);
+		for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
+		{
+			for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
+			{
+				if (i < Pickables.size() && j < Pickables[i].size()) {
+
+					if (Pickables[i][j].size() > 0)
+						for (int k = 0; k < Pickables[i][j].size(); k++)
+						{
+							Pickables[i][j][k]->UpdateItem(this);
+						}
+				}
+			}
+		}
+
+		for (auto it = FiredAmmo.cbegin(); it != FiredAmmo.cend(); )
+		{
+			if ((*it)->Hit())
+			{
+				Ammo* temp = *it;
+				FiredAmmo.erase(it++);
+				delete temp;
+			}
+			else
+			{
+				(*it)->UpdateItem(this);
+				++it;
+			}
+		}
+		if (IsKeyPressed(KEY_P))
+		{
+			screenstate = Pause;
+		}
+		break;
+	case Pause:
+
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Resume",50) / 2,WindowHeight / 2.0f - 75, (float)MeasureText("Resume",50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				screenstate = Game;
+
+			}
+
+		}
+
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Setting",50) / 2,WindowHeight / 2.0f - 25, (float)MeasureText("Setting",50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				Previous = Pause;
+				screenstate = Settings;
+			}
+
+		}
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Exit",50) / 2,WindowHeight / 2.0f  + 25, (float)MeasureText("Exit",50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				CloseWindow();
+				CloseAudioDevice();
+			}
+		}
+
+		break;
+	case Settings:
+		scrollingBackSun_Moon += 200 * GetFrameTime();
+		scrollingBack1 -= 0.3f;
+		scrollingBack2 -= 0.6f;
+		scrollingBack3 -= 2.1f;
+		scrollingBack4 -= 3.0f;
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2,  WindowHeight / 2 + 0.3f * WindowHeight + 50, (float)MeasureText("Back", 50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				screenstate = Previous;
+			}
+		}
+		break;
+	case Generate_World:
+		scrollingBackSun_Moon += 200 * GetFrameTime();
+		scrollingBack1 -= 0.3f;
+		scrollingBack2 -= 0.6f;
+		scrollingBack3 -= 2.1f;
+		scrollingBack4 -= 3.0f;
+
+		//int nigger;
+		//world->GenerateWorld(&nigger,Large);
+		for (int i = 0; i < 3; i++) {
+			if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText(Sizes[i], 50) / 2, WindowHeight / 2 - 0.3f * WindowHeight + i * 55, (float)MeasureText(Sizes[i], 50),50 }))
+			{
+				if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+					ChosenSize = i;
+				}
+			}
+		}
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2, WindowHeight - 0.1f * WindowHeight, (float)MeasureText("Back", 50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				screenstate = Main_Menu;
+				Name = "";
+				ChosenSize = -1;
+			}
+		}
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Generate", 50) / 2,  WindowHeight / 2 - 0.2f * WindowHeight + 2 * 55 + 100 + 0.03f * WindowHeight, (float)MeasureText("Generate", 50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				world = new World(pUI);
+		//		world->GenerateWorld();
+				switch ((WorldSize)ChosenSize)
+				{
+				case Small:
+					WorldHeight = Small_WorldHeight;
+					WorldWidth = Small_WorldWidth;
+					break;
+				case Medium:
+					WorldHeight = Medium_WorldHeight;
+					WorldWidth = Medium_WorldWidth;
+					break;
+				case Large:
+					WorldHeight = Large_WorldHeight;
+					WorldWidth = Large_WorldWidth;
+					break;
+				default:
+					break;
+				}
+
+				minPoint = Vector2{ -WorldWidth / 2.0f * blockWidth ,-WorldHeight / 2.0f * blockHeight };
+				maxPoint = Vector2{ WorldWidth / 2.0f * blockWidth ,WorldHeight / 2.0f * blockHeight };
+
+				int Progress =0;
+				
+				thread Worker1(&World::GenerateWorld, world, &Progress, (WorldSize)ChosenSize, Name);
+
+				while (Progress < WorldHeight * WorldWidth && !WindowShouldClose())
+				{
+
+					UpdateMusicStream(pUI->BacgroundMusic);
+					BeginDrawing();
+					ClearBackground(WHITE);
+					DrawText("Generating World", GetScreenWidth() / 2 - MeasureText("Generating World", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
+
+					DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
+
+					EndDrawing();
+				}
+
+				Worker1.join();
+
+				Progress = 0;
+
+				thread Worker2([&](int* Progress) {
+					for (int i = 0; i < WorldHeight; i++)
+					{
+						vector<vector<Item*>> temp;
+						//Pickables.push_back(vector<vector<Item*>>{});
+						for (int j = 0; j < WorldWidth; j++)
+						{
+							temp.push_back(vector<Item*>{});
+							(*Progress)++;
+						}
+						Pickables.push_back(temp);
+					}
+
+					}, &Progress);
+
+
+				while (Progress < WorldHeight * WorldWidth)
+				{
+
+
+					UpdateMusicStream(pUI->BacgroundMusic);
+					BeginDrawing();
+					ClearBackground(WHITE);
+					DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
+
+					DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
+
+					EndDrawing();
+				}
+
+				Worker2.join();
+				screenstate = Game;
+
+				wall = world->GetWall();
+				dirtblocks = world->GetBlocks();
+				player.SetPos(world->GetSpawnPoint());
+			}
+		}
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2 - 0.2f * WindowWidth, WindowHeight / 2 - 0.2f * WindowHeight + 2 * 55 + 10, 0.4f * WindowWidth, 100 }))
+		{
+			int key = GetCharPressed();
+			while (key > 0)
+			{
+				// NOTE: Only allow keys in range [32..125]
+				if ((key >= 32) && (key <= 125) && (Name.size() < 15))
+				{
+					Name.push_back((char)key);
+				}
+
+				key = GetCharPressed();  // Check next character in the queue
+			}
+			if (IsKeyPressed(KEY_BACKSPACE))
+			{
+				if (Name.size() > 0) Name.pop_back();
+			}
+		}
 		break;
 	default:
 		break;
 	}
 
 
-	// updating each mined item for item falling effect when mined
-	Vector2 CenterPos = GetScreenToWorld2D(Vector2{ WindowWidth / 2.0f,WindowHeight / 2.0f }, camera);
-	for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
+	if (scrollingBackSun_Moon >= WindowWidth) // should change it so that the day change based on time passing instead of reaching end of screen
 	{
-		for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
-		{
-			if (i < Pickables.size() && j < Pickables[i].size()) {
-				
-				if (Pickables[i][j].size() > 0)
-					for (int k = 0; k < Pickables[i][j].size(); k++)
-					{
-						Pickables[i][j][k]->UpdateItem(this);
-					}
-			}
-		}
+		Day = !Day;
+		//scrollingBackSun_Moon = 0;
 	}
 
-	for (auto it = FiredAmmo.cbegin(); it != FiredAmmo.cend() ; )
+
+	switch (Day)
 	{
-		if ((*it)->Hit())
-		{
-			Ammo* temp = *it;
-			FiredAmmo.erase(it++);    
-			delete temp;
-		}
-		else
-		{
-			(*it)->UpdateItem(this);
-			++it;
-		}
+		case 0:
+			// went too far to left
+			if (scrollingBack1 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
+			if (scrollingBack2 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
+			if (scrollingBack3 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
+			if (scrollingBack4 <= -pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+
+
+			//too far to right
+			if (scrollingBack1 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
+			if (scrollingBack2 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
+			if (scrollingBack3 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
+			if (scrollingBack4 >= pUI->Nightbackground1.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+
+			if (scrollingBackSun_Moon >= pUI->Moon.width * WindowWidth / pUI->Moon.width) scrollingBackSun_Moon = 0;
+			break;
+		case 1:
+
+			// went too far to left
+			if (scrollingBack1 <= -pUI->Morningbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
+			if (scrollingBack2 <= -pUI->Morningbackground2.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
+			if (scrollingBack3 <= -pUI->Morningbackground3.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
+			if (scrollingBack4 <= -pUI->Morningbackground4.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+
+
+			//too far to right
+			if (scrollingBack1 >= pUI->Morningbackground1.width * WindowWidth / pUI->Morningbackground1.width) scrollingBack1 = 0;
+			if (scrollingBack2 >= pUI->Morningbackground2.width * WindowWidth / pUI->Morningbackground2.width) scrollingBack2 = 0;
+			if (scrollingBack3 >= pUI->Morningbackground3.width * WindowWidth / pUI->Morningbackground3.width) scrollingBack3 = 0;
+			if (scrollingBack4 >= pUI->Morningbackground4.width * WindowWidth / pUI->Morningbackground4.width) scrollingBack4 = 0;
+
+			if (scrollingBackSun_Moon >= pUI->Moon.width * WindowWidth / pUI->Moon.width) scrollingBackSun_Moon = 0;
+
+
+			break;
+		default:
+			break;
 	}
 
 }
@@ -216,6 +546,7 @@ void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 
 void Manager::GenerateWorld(int* BlocksFinished)
 {
+	srand((unsigned int)time(NULL));
 	float seed = rand();
 	float smoothness = 320.0f;
 	float modifier = 0.02; //0.03
@@ -246,7 +577,7 @@ void Manager::GenerateWorld(int* BlocksFinished)
 					first++;
 				}
 
-				if ((SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) < 0.3 && i * blockHeight + minPoint.y > 400 && i != WorldHeight - 1) {
+				if ((SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) < -0.3 && i * blockHeight + minPoint.y > 400 && i != WorldHeight - 1) {
 					temp.push_back(NULL);
 				}
 				else {
@@ -257,7 +588,7 @@ void Manager::GenerateWorld(int* BlocksFinished)
 			}
 			(*BlocksFinished)++;
 		}
-		dirtblocks.push_back(temp);
+		//dirtblocks.push_back(temp);
 	}
 
 
@@ -277,6 +608,10 @@ bool Manager::isSurfaceTile(int row , int column) {
 
 bool Manager::IsBlock(Vector2 pos)
 {
+	if (pos.x > WorldWidth - 1 || pos.y > WorldHeight - 1 || pos.x < 0 || pos.y < 0)
+	{
+		return false;
+	}
 	return dirtblocks[pos.y][pos.x];
 }
 
@@ -396,56 +731,232 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 		break;
 	}
 
-	
 
-
-
-	BeginMode2D(camera);
-
-	player.UpdateInventory(this);
-
-	
-	Vector2 CenterPos = GetScreenToWorld2D(Vector2{ WindowWidth / 2.0f,WindowHeight / 2.0f }, camera); //player.GetPos();
-	
-
-	for (int i = ((int)(CenterPos.y - minPoint.y )/blockHeight )  - WindowHeight /blockHeight * 0.5 ; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) +3 ; i++)
+	switch (screenstate)
 	{
-		for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth )  - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x)/ blockWidth + WindowWidth / blockWidth *0.5 ) +3; j++) // 
+	case Main_Menu:
+		for (int i = 0; i < 4; i++)
 		{
-			if (i < dirtblocks.size() && j < dirtblocks[i].size()) {
-				if (wall[i][j])
-				{
-					DrawTexturePro(pUI->wall, Rectangle{ 21,75, 50,50 }, Rectangle{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y, blockWidth , blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
 
-					
+			if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText(Menu[i],50) / 2,WindowHeight / 2.0f + i*50 - 75, (float)MeasureText(Menu[i],50),50 }))
+			{
+				DrawText(Menu[i],WindowWidth/2 - MeasureText(Menu[i],60)/2,WindowHeight/2 + i * 50 - 75,60 ,YELLOW);
+			}
+			else
+			{
+				DrawText(Menu[i], WindowWidth / 2 - MeasureText(Menu[i], 50) / 2, WindowHeight / 2 + i * 50 - 75, 50, RAYWHITE);
+
+			}
+		}
+
+
+		/*if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Generate World",50) / 2,WindowHeight / 2.0f - 25, (float)MeasureText("Generate World",50),50 }))
+		{
+			DrawText("Generate World", WindowWidth / 2 - MeasureText("Generate World", 50) / 2, WindowHeight / 2 - 25, 50, YELLOW);
+		}
+		else
+		{
+			DrawText("Generate World", WindowWidth / 2 - MeasureText("Generate World", 50) / 2, WindowHeight / 2 - 25, 50, RAYWHITE);
+		}
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Setting",50) / 2,WindowHeight / 2.0f + 25, (float)MeasureText("Setting",50),50 }))
+		{
+			DrawText("Setting", WindowWidth / 2 - MeasureText("Setting", 50) / 2, WindowHeight / 2 + 25, 50, YELLOW);
+		}
+		else
+		{
+			DrawText("Setting", WindowWidth / 2 - MeasureText("Setting", 50) / 2, WindowHeight / 2 + 25, 50, RAYWHITE);
+		}
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Exit",50) / 2,WindowHeight / 2.0f + (50 + 25), (float)MeasureText("Exit",50),50 }))
+		{
+			DrawText("Exit", WindowWidth / 2 - MeasureText("Exit", 50) / 2, WindowHeight / 2 + 50 + 25, 50, YELLOW);
+		}
+		else
+		{
+			DrawText("Exit", WindowWidth / 2 - MeasureText("Exit", 50) / 2, WindowHeight / 2 + 50 + 25, 50, RAYWHITE);
+		}*/
+		break;
+	case Worlds_List:
+		DrawRectangle( WindowWidth / 2 - 0.3*WindowWidth, WindowHeight / 2 - 0.3 * WindowHeight, 0.6 * WindowWidth, 0.6 * WindowHeight,Fade(BLUE,0.7));
+		for (int i = 2; i < WorldCount; i++) {
+			if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText(Worlds[i], 50) / 2, WindowHeight / 2 - 0.3f * WindowHeight + (i - 2) * 55, (float)MeasureText(Worlds[i], 50),50 }))
+			{
+				DrawText(Worlds[i], WindowWidth / 2 - MeasureText(Worlds[i], 60) / 2, WindowHeight / 2 - 0.3 * WindowHeight + (i - 2) * 55, 60, YELLOW);
+			}
+			else
+			{
+				DrawText(Worlds[i], WindowWidth / 2 - MeasureText(Worlds[i], 50) / 2, WindowHeight / 2 - 0.3 * WindowHeight + (i-2)*55, 50, RAYWHITE); // y value needs fixing
+			}
+		}
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2,  WindowHeight / 2 + 0.3f * WindowHeight + 50, (float)MeasureText("Back", 50),50 }))
+		{
+			DrawText("Back", WindowWidth / 2 - MeasureText("Back", 60)/2, WindowHeight / 2 + 0.3 * WindowHeight + 50, 60, YELLOW);
+		}
+		else
+		{
+			DrawText("Back", WindowWidth / 2 - MeasureText("Back", 50)/2, WindowHeight / 2 + 0.3 * WindowHeight + 50, 50, RAYWHITE); // y value needs fixing
+		}
+		break;
+	case Loading:
+		break;
+	case Game:
+	{
+		BeginMode2D(camera);
+
+		player.UpdateInventory(this);
+
+
+		Vector2 CenterPos = GetScreenToWorld2D(Vector2{ WindowWidth / 2.0f,WindowHeight / 2.0f }, camera); //player.GetPos();
+
+
+		for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
+		{
+			for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
+			{
+				if (i >= 0 && j >= 0 && i < WorldHeight && j < WorldWidth) {
+					if (wall[i][j])
+					{
+						DrawTexturePro(pUI->wall, Rectangle{ 21,75, 50,50 }, Rectangle{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y, blockWidth , blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+					}
+					if (dirtblocks[i][j])
+						dirtblocks[i][j]->DrawItem(0, Right, Placed);
 				}
-				if(dirtblocks[i][j])
-					dirtblocks[i][j]->DrawItem(0, Right, Placed);
+			}
+		}
+
+		for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
+		{
+			for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
+			{
+				if (i < WorldHeight && j < WorldWidth && i>0 && j>0)
+					if (Pickables[i][j].size() > 0)
+						Pickables[i][j][0]->DrawItem(0, Right, Mined);
+			}
+		}
+		for (auto i = FiredAmmo.begin(); i != FiredAmmo.end(); i++)
+		{
+			(*i)->DrawItem(0, Right, Placed);
+		}
+
+
+
+		player.draw();
+		EndMode2D();
+
+		player.drawInv();
+		break;
+	}
+	case Pause:
+	{
+		BeginMode2D(camera);
+
+		player.UpdateInventory(this);
+
+
+		Vector2 CenterPos = GetScreenToWorld2D(Vector2{ WindowWidth / 2.0f,WindowHeight / 2.0f }, camera); //player.GetPos();
+
+
+		for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
+		{
+			for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
+			{
+				if (i >= 0 && j >= 0 && i < WorldHeight && j < WorldWidth) {
+					if (wall[i][j])
+					{
+						DrawTexturePro(pUI->wall, Rectangle{ 21,75, 50,50 }, Rectangle{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y, blockWidth , blockHeight }, Vector2{ 0,0 }, 0.0f, WHITE);
+					}
+					if (dirtblocks[i][j])
+						dirtblocks[i][j]->DrawItem(0, Right, Placed);
+				}
+			}
+		}
+
+		for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
+		{
+			for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
+			{
+				if (i < WorldHeight && j < WorldWidth && i>0 && j>0)
+					if (Pickables[i][j].size() > 0)
+						Pickables[i][j][0]->DrawItem(0, Right, Mined);
+			}
+		}
+		for (auto i = FiredAmmo.begin(); i != FiredAmmo.end(); i++)
+		{
+			(*i)->DrawItem(0, Right, Placed);
+		}
+
+
+
+		player.draw();
+		EndMode2D();
+
+		player.drawInv();
+		for (int i = 0; i < 3; i++)
+		{
+
+			if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText(PauseMenu[i],50) / 2,WindowHeight / 2.0f + i * 50 - 75, (float)MeasureText(Menu[i],50),50 }))
+			{
+				DrawText(PauseMenu[i], WindowWidth / 2 - MeasureText(PauseMenu[i], 60) / 2, WindowHeight / 2 + i * 50 - 75, 60, YELLOW);
+			}
+			else
+			{
+				DrawText(PauseMenu[i], WindowWidth / 2 - MeasureText(PauseMenu[i], 50) / 2, WindowHeight / 2 + i * 50 - 75, 50, RAYWHITE);
+
 			}
 		}
 	}
-
-	for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
-	{
-		for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
+		break;
+	case Settings:
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2,  WindowHeight / 2 + 0.3f * WindowHeight + 50, (float)MeasureText("Back", 50),50 }))
 		{
-			if (i < WorldHeight && j < WorldWidth && i>0 && j>0)
-				if (Pickables[i][j].size() > 0)
-					Pickables[i][j][0]->DrawItem(0, Right, Mined);
+			DrawText("Back", WindowWidth / 2 - MeasureText("Back", 60) / 2, WindowHeight / 2 + 0.3 * WindowHeight + 50, 60, YELLOW);
 		}
+		else
+		{
+			DrawText("Back", WindowWidth / 2 - MeasureText("Back", 50) / 2, WindowHeight / 2 + 0.3 * WindowHeight + 50, 50, RAYWHITE); // y value needs fixing
+		}
+		break;
+	case Generate_World:
+
+		for (int i = 0; i < 3; i++) {
+			if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText(Sizes[i], 50) / 2, WindowHeight / 2 - 0.3f * WindowHeight + i * 55, (float)MeasureText(Sizes[i], 50),50 }) || ChosenSize==i)
+			{
+				DrawText(Sizes[i], WindowWidth / 2 - MeasureText(Sizes[i], 60) / 2, WindowHeight / 2 - 0.3 * WindowHeight + i * 55, 60, YELLOW);
+			}
+			else
+			{
+				DrawText(Sizes[i], WindowWidth / 2 - MeasureText(Sizes[i], 50) / 2, WindowHeight / 2 - 0.3 * WindowHeight + i * 55, 50, RAYWHITE); // y value needs fixing
+			}
+		}
+
+		DrawRectangle(WindowWidth / 2 - 0.2 * WindowWidth, WindowHeight / 2 - 0.2 * WindowHeight + 2 * 55 + 10, 0.4 * WindowWidth, 100, Fade(BLUE, 0.7));
+		DrawText(Name.c_str(), WindowWidth / 2 - MeasureText(Name.c_str(), 50) / 2, WindowHeight / 2 - 0.2 * WindowHeight + 2 * 55 + 35, 50, WHITE);
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Generate", 50) / 2,  WindowHeight / 2 - 0.2f * WindowHeight + 2 * 55 + 100 + 0.03f * WindowHeight, (float)MeasureText("Generate", 50),50 }))
+		{
+			DrawText("Generate", WindowWidth / 2 - MeasureText("Generate", 60) / 2, WindowHeight / 2 - 0.2f * WindowHeight + 2 * 55 + 100 + 0.03f * WindowHeight, 60, YELLOW);
+		}
+		else
+		{
+			DrawText("Generate", WindowWidth / 2 - MeasureText("Generate", 50) / 2, WindowHeight / 2 - 0.2f * WindowHeight + 2 * 55 + 100  + 0.03f* WindowHeight, 50, RAYWHITE); // y value needs fixing
+		}
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2, WindowHeight - 0.1f * WindowHeight, (float)MeasureText("Back", 50),50 }))
+		{
+			DrawText("Back", WindowWidth / 2 - MeasureText("Back", 60) / 2, WindowHeight - 0.1* WindowHeight, 60, YELLOW);
+		}
+		else
+		{
+			DrawText("Back", WindowWidth / 2 - MeasureText("Back", 50) / 2, WindowHeight - 0.1* WindowHeight, 50, RAYWHITE); // y value needs fixing
+		}
+		break;
+	default:
+		break;
 	}
-	for (auto i = FiredAmmo.begin(); i != FiredAmmo.end(); i++)
-	{
-		(*i)->DrawItem(0, Right, Placed);
-	}
-	
 
-
-	player.draw();
-	EndMode2D();
-
-	player.drawInv();
-	DrawFPS(WindowWidth-70, 20);
+		DrawFPS(WindowWidth-70, 20);
 	//EndScissorMode();
 	EndDrawing();
 }
@@ -477,25 +988,12 @@ void Manager::RemovePickable(int i, int j, Item* item)
 
 void Manager::RemoveBlock(int i, int j)
 {
-	dirtblocks[i][j]->setPos(j * blockWidth + minPoint.x, i * blockHeight + minPoint.y);
-	dirtblocks[i][j]->setState(Mined);
-	dirtblocks[i][j] = NULL;
+	world->RemoveBlock(i, j);
 }
 
 bool Manager::PlaceBlock(int i, int j, Item* item)
 {
-	if (!dirtblocks[i+1][j] && !dirtblocks[i][j + 1] && !dirtblocks[i - 1][j] && !dirtblocks[i][j - 1]) // cant place tile in space
-		return false;
-	if (item->GetItemType() != Block)
-		return false;
-	if (!dirtblocks[i][j])
-	{
-		item->setState(Placed);
-		item->setPos(j * blockWidth + minPoint.x, i * blockHeight + minPoint.y);
-		dirtblocks[i][j] = item;
-		return true;
-	}
-	return false;
+	return world->PlaceBlock(i,j,item);
 }
 
 bool Manager::PlaceBlock(Vector2 pos, Item* item)
@@ -527,7 +1025,7 @@ Vector2 Manager::GetMaxPoint()
 
 vector<vector<Item*>>::const_iterator  Manager::GetDirtBlocks()
 {
-	return dirtblocks.begin();
+	return world->GetBlocks();
 }
 
 vector< vector<vector<Item*>>>::const_iterator Manager::GetPickables()
@@ -542,18 +1040,26 @@ Player* Manager::GetPlayer()
 
 Vector2 Manager::GetSpawn()
 {
-	return SpawnPoint;
+	return world->GetSpawnPoint();
+}
+
+int Manager::GetWorldHeight()
+{
+	return world->GetWorldHeight();
+}
+
+int Manager::GetWorldWidth()
+{
+	return world->GetWorldWidth();
 }
 
 Manager::~Manager()
 {
-
+	delete world;
 	for (int i = 0; i < WorldHeight; i++)
 	{
 		for (int j = 0; j < WorldWidth; j++)
 		{
-			if (dirtblocks[i][j])
-				delete dirtblocks[i][j];
 			if (Pickables[i][j].size() !=0)
 			{
 				for (int k = 0; k < Pickables[i][j].size(); k++) {
