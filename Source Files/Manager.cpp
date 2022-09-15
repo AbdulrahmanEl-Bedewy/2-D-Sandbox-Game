@@ -542,59 +542,6 @@ void Manager::UpdateCam(int WindowWidth, int WindowHeight)
 }
 
 
-
-
-void Manager::GenerateWorld(int* BlocksFinished)
-{
-	srand((unsigned int)time(NULL));
-	float seed = rand();
-	float smoothness = 320.0f;
-	float modifier = 0.02; //0.03
-	int height = 600;
-
-	int first = 0;
-
-	for (int i = 0; i < WorldHeight ; i++)
-	{
-		vector<Item*> temp;
-		wall.push_back(vector<int>{});
-		for (int j = 0; j < WorldWidth ; j++)
-		{
-			int tempValue = (int)(SimplexNoise::noise(j / smoothness, seed) * height / blockHeight) * blockHeight;
-
-			if (i * blockHeight + minPoint.y < -tempValue) 
-			{
-				temp.push_back(NULL);
-				wall[i].push_back(0);
-			}
-			else {
-				wall[i].push_back(1);
-				if (first == 0 && j * blockWidth + minPoint.x > 0) 
-				{
-					
-					SpawnPoint.x = j * blockWidth + minPoint.x;
-					SpawnPoint.y = i * blockHeight + minPoint.y - 64;
-					first++;
-				}
-
-				if ((SimplexNoise::noise(j * modifier + seed, i * modifier + seed)) < -0.3 && i * blockHeight + minPoint.y > 400 && i != WorldHeight - 1) {
-					temp.push_back(NULL);
-				}
-				else {
-					Item* d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
-					d->setState(Placed);
-					temp.push_back(d);
-				}
-			}
-			(*BlocksFinished)++;
-		}
-		//dirtblocks.push_back(temp);
-	}
-
-
-	
-}
-
 bool Manager::isSurfaceTile(int row , int column) {
 	// used to determine which tiles should be grass
 	if (row == 0 ||column==0)

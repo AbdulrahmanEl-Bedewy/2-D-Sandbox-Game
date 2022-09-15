@@ -52,7 +52,6 @@ class Manager
 
 	/*void UpdatePlayer(int WindowWidth, int WindowHeight);*/
 	void UpdateCam(int WindowWidth, int WindowHeight);
-	void GenerateWorld(int* BlocksFinished);
 
 public:
 	Manager(UIInfo* p);
@@ -66,7 +65,7 @@ public:
 	bool PlaceBlock(int x, int y,Item* item); 
 	bool PlaceBlock(Vector2 pos, Item* item);
 	void AddFiredAmmo(Ammo* ammo);
-	void RemoveFiredAmmo(Ammo* ammo);
+//	void RemoveFiredAmmo(Ammo* ammo);
 
 	Vector2 GetMinPoint();
 	Vector2 GetMaxPoint();

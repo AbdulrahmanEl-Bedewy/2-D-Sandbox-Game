@@ -125,7 +125,7 @@ void World::GenerateWorld(int* BlocksFinished, WorldSize size, string Name)
 void World::SaveWorld()
 {
 	ofstream Outputfile;
-	Outputfile.open("Worlds/" + Name + ".txt", ios::out);
+	Outputfile.open("Worlds/" + Name , ios::out);
 
 	Outputfile << WorldHeight << endl << WorldWidth << endl;
 	Outputfile << SpawnPoint.x << " " << SpawnPoint.y << endl;
@@ -157,6 +157,7 @@ void World::LoadWorld(const std::string name)
 {
 	ifstream inputfile;
 	inputfile.open("Worlds/" + name, ios::in);
+	Name = name;
 
 	inputfile >> WorldHeight >> WorldWidth;
 	inputfile >> SpawnPoint.x >> SpawnPoint.y;
