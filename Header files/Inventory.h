@@ -30,8 +30,9 @@ class Inventory
 	std::unordered_map<ItemClass, std::vector<int>> OpenStack;
 
 
-	Stack* getStackFromPos(int p);
-	int GetOpenStackPos();
+//	Stack* getStackFromPos(int p);
+
+	int GetOpenStackPos(); // finds the index of the first empty place in the storage
 	void RemoveStack(int pos);
 
 public:

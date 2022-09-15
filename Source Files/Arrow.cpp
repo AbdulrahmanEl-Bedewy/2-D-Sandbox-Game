@@ -30,7 +30,7 @@ void Arrow::UpdateItem(Manager* pManager)
 		 Yspeed += 400 * min(GetFrameTime(), 0.05f);
 	 }
 
-	 if (hit)
+	 if (hit) // timer is used in the Hit func. just to make the arrow stay for a few seconds then disappear 
 		 timer += min(GetFrameTime(), 0.05f);
 
 	Vector2 minPoint = pManager->GetMinPoint();
@@ -40,6 +40,8 @@ void Arrow::UpdateItem(Manager* pManager)
 
 
  	if (Fired) {
+		//check collision
+
 		Vector2 temp = (Vector2{ pos.x - 24 * cosf((this->rotation) * PI / 180) - 5 + Xspeed * min(GetFrameTime(), 0.05f), pos.y - 24 * sinf((this->rotation) * PI / 180) -5 + Yspeed * min(GetFrameTime(), 0.05f) });
 		for (int i = ((int)(temp.y - minPoint.y) / blockHeight) - 1; i < ((int)(temp.y - minPoint.y) / blockHeight) + 6; i++)
 		{
@@ -51,7 +53,6 @@ void Arrow::UpdateItem(Manager* pManager)
 					Vector2 dirtpos = dirtblocks[i][j]->GetPos();
 					if (CheckCollisionRecs(Rectangle{ temp.x, temp.y,10,10 }, Rectangle{ dirtpos.x, dirtpos.y , blockWidth, blockHeight })) {
 						Yspeed = 0;
-	//					pos.y =  dirtpos.y - 63.0f;
 						Xspeed = 0;
 						Fired = false;
 						hit = true;
@@ -98,9 +99,9 @@ void Arrow::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State
 	}
 }
 
-void Arrow::DrawName(Vector2 pos)
+void Arrow::DrawName(Vector2 pos) // not really used as arrows isnt an item for now
 {
-	DrawText("Bow", pos.x - MeasureText(pUI->dirtName.c_str(), 20) / 2, 5, 20, WHITE);
+	DrawText("Arrow", pos.x - MeasureText("Arrow", 20) / 2, 5, 20, WHITE); 
 }
 
 bool Arrow::Hit()
@@ -108,7 +109,7 @@ bool Arrow::Hit()
 	return timer > 2;
 }
 
-void Arrow::ApplyEffect()
+void Arrow::ApplyEffect() 
 {
 }
 

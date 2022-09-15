@@ -51,6 +51,7 @@ class Manager
 	ScreenState Previous;
 
 	/*void UpdatePlayer(int WindowWidth, int WindowHeight);*/
+//	void DrawBackground(int WindowWidth, int WindowHeight);
 	void UpdateCam(int WindowWidth, int WindowHeight);
 
 public:
@@ -58,7 +59,6 @@ public:
 
 	void Update(int WindowWidth, int WindowHeight);
 	void Draw(int WindowWidth, int WindowHeight);
-	void DrawBackground(int WindowWidth, int WindowHeight);
 	void AddPickable(int i,int j,Item* item);
 	void RemovePickable(int i, int j, Item* item);
 	void RemoveBlock(int i, int j);

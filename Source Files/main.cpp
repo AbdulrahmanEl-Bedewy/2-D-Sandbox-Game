@@ -12,11 +12,7 @@ int main() {
 	InitAudioDevice();
 	SetTargetFPS(60);
 
-	int p;
-	char** o = GetDirectoryFiles("ScreenShots", &p);
-	for (int i = 0; i < p; i++) {
-		cout << o[i];
-	}
+// Loading Textures & Music Used
 
 	UIInfo ui_Info;
 	ui_Info.dirtDes = string{ "Block can be placed" };
@@ -61,6 +57,8 @@ int main() {
 
 	}
 
+	// Unload All Loaded Textures & Music
+
 	UnloadTexture(ui_Info.dirtTex);
 	UnloadTexture(ui_Info.wall);
 	UnloadTexture(ui_Info.player);
@@ -76,6 +74,7 @@ int main() {
 	UnloadTexture(ui_Info.Moon);
 
 	UnloadMusicStream(ui_Info.BacgroundMusic);
+
 	if (IsWindowReady()) {
 		CloseAudioDevice();
 		CloseWindow();

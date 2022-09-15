@@ -6,75 +6,9 @@
 //#include <iostream>
 using namespace std;
 
-Manager::Manager(UIInfo* p) :player(p)
+Manager::Manager(UIInfo* p) : player(p)
 {
 	pUI = p;
-	
-
-	int Progress = 0;
-
-	
-	int x;
-	//world.GenerateWorld(&x);
-	//world.LoadWorld("world_test.txt");
-	//wall = world.GetWall();
-	//dirtblocks = world.GetBlocks();
-	//world.SaveWorld();
-	/*thread Worker1(&Manager::GenerateWorld, this, &Progress);
-
-	while (Progress < WorldHeight * WorldWidth && !WindowShouldClose())
-	{
-		
-		UpdateMusicStream(pUI->BacgroundMusic);
-		BeginDrawing();
-		ClearBackground(WHITE);
-		DrawText("Generating World", GetScreenWidth() / 2 - MeasureText("Generating World", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
-
-		DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
-
-		EndDrawing();
-	}
-
-	Worker1.join();*/
-
-
-
-
-	//initialize vector
-	//Progress = 0;
-
-	//thread Worker2([&](int* Progress) {
-	//	for (int i = 0; i < WorldHeight; i++)
-	//	{
-	//		vector<vector<Item*>> temp;
-	//		//Pickables.push_back(vector<vector<Item*>>{});
-	//		for (int j = 0; j < WorldWidth; j++)
-	//		{
-	//			temp.push_back(vector<Item*>{});
-	//			(*Progress)++;
-	//		}
-	//		Pickables.push_back(temp);
-	//	}
-
-	//	}, &Progress);
-
-
-	//while (Progress < WorldHeight * WorldWidth)
-	//{
-
-
-	//	UpdateMusicStream(pUI->BacgroundMusic);
-	//	BeginDrawing();
-	//	ClearBackground(WHITE);
-	//	DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
-
-	//	DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
-
-	//	EndDrawing();
-	//}
-
-	//Worker2.join();
-
 
 	scrollingBack1 = 0.0f;
 	scrollingBack2 = 0.0f;
@@ -106,8 +40,8 @@ Manager::Manager(UIInfo* p) :player(p)
 	
 
 	camera = { 0 };
-	camera.target = Vector2{ player.GetPos().x + 20 , player.GetPos().y + 20 };;
-	camera.offset = Vector2{ 800 / 2.0f, 400 / 2.0f };
+	//camera.target = Vector2{ player.GetPos().x + 20 , player.GetPos().y + 20 };;
+	//camera.offset = Vector2{ 800 / 2.0f, 400 / 2.0f };
 	camera.rotation = 0.0f;
 	camera.zoom = 1;
 
@@ -119,6 +53,8 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 	switch (screenstate)
 	{
 	case Main_Menu:
+
+
 		scrollingBackSun_Moon += 200 * GetFrameTime();
 		scrollingBack1 -= 0.3f;
 		scrollingBack2 -= 0.6f;
@@ -127,8 +63,18 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 
 		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Load World",50) / 2,WindowHeight / 2.0f - (50 + 25), (float)MeasureText("Load World",50),50 }))
 		{
-			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
+			{
 				Worlds = GetDirectoryFiles("Worlds", &WorldCount);
+				for (int i = 2; i < WorldCount; i++)
+				{
+					if (!IsFileExtension(Worlds[i], ".txt"))
+					{
+						Worlds[i] = Worlds[WorldCount - 1];
+						WorldCount--;
+						i--;
+					}
+				}
 				screenstate = Worlds_List;
 			}
 		}
@@ -164,7 +110,11 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		}
 
 		break;
+
+
 	case Worlds_List:
+
+
 		scrollingBackSun_Moon += 200 * GetFrameTime();
 		scrollingBack1 -= 0.3f;
 		scrollingBack2 -= 0.6f;
@@ -176,15 +126,33 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 			{
 				if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
 					world = new World(pUI);
-					world->LoadWorld(Worlds[i]);
+					//world->LoadWorld(Worlds[i]);
+					string name = Worlds[i];
+					name.erase(name.size() - 4, 4);
+					int Progress = 0;
+					thread Worker1(&World::LoadWorld, world, &Progress, name);
+
+					while (Progress < WorldHeight * WorldWidth && !WindowShouldClose())
+					{
+
+						UpdateMusicStream(pUI->BacgroundMusic);
+						BeginDrawing();
+						ClearBackground(WHITE);
+						DrawText("Loading World", GetScreenWidth() / 2 - MeasureText("Loading World", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
+
+						DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
+
+						EndDrawing();
+					}
+
+					Worker1.join();
+
 					dirtblocks = world->GetBlocks();
 					wall = world->GetWall();
 					WorldHeight = world->GetWorldHeight();
 					WorldWidth = world->GetWorldWidth();
-					player.SetPos(world->GetSpawnPoint());
-					minPoint = Vector2{ -WorldWidth / 2.0f * blockWidth ,-WorldHeight / 2.0f * blockHeight };
-					maxPoint = Vector2{ WorldWidth / 2.0f * blockWidth ,WorldHeight / 2.0f * blockHeight };
-					int Progress = 0;
+
+					Progress = 0;
 
 					thread Worker2([&](int* Progress) {
 						for (int i = 0; i < WorldHeight; i++)
@@ -217,6 +185,15 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 					}
 
 					Worker2.join();
+
+					
+
+					//	player = new Player(pUI);
+
+					player.SetPos(world->GetSpawnPoint());
+					minPoint = Vector2{ -WorldWidth / 2.0f * blockWidth ,-WorldHeight / 2.0f * blockHeight };
+					maxPoint = Vector2{ WorldWidth / 2.0f * blockWidth ,WorldHeight / 2.0f * blockHeight };
+
 					screenstate = Game;
 				}
 			}
@@ -229,7 +206,11 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		}
 		
 		break;
+
+
 	case Loading:
+
+
 		scrollingBackSun_Moon += 200 * GetFrameTime();
 		scrollingBack1 -= 0.3f;
 		scrollingBack2 -= 0.6f;
@@ -238,6 +219,8 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		break;
 
 	case Game:
+
+
 		player.Update(this);
 		UpdateCam(WindowWidth, WindowHeight);
 
@@ -295,6 +278,8 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 			screenstate = Pause;
 		}
 		break;
+
+
 	case Pause:
 
 
@@ -326,7 +311,11 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		}
 
 		break;
+
+
 	case Settings:
+
+
 		scrollingBackSun_Moon += 200 * GetFrameTime();
 		scrollingBack1 -= 0.3f;
 		scrollingBack2 -= 0.6f;
@@ -339,7 +328,11 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 			}
 		}
 		break;
+
+
 	case Generate_World:
+
+
 		scrollingBackSun_Moon += 200 * GetFrameTime();
 		scrollingBack1 -= 0.3f;
 		scrollingBack2 -= 0.6f;
@@ -391,28 +384,11 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 				minPoint = Vector2{ -WorldWidth / 2.0f * blockWidth ,-WorldHeight / 2.0f * blockHeight };
 				maxPoint = Vector2{ WorldWidth / 2.0f * blockWidth ,WorldHeight / 2.0f * blockHeight };
 
-				int Progress =0;
+				long Progress1 =0;
+				long Progress2 = 0;
 				
-				thread Worker1(&World::GenerateWorld, world, &Progress, (WorldSize)ChosenSize, Name);
-
-				while (Progress < WorldHeight * WorldWidth && !WindowShouldClose())
-				{
-
-					UpdateMusicStream(pUI->BacgroundMusic);
-					BeginDrawing();
-					ClearBackground(WHITE);
-					DrawText("Generating World", GetScreenWidth() / 2 - MeasureText("Generating World", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
-
-					DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
-
-					EndDrawing();
-				}
-
-				Worker1.join();
-
-				Progress = 0;
-
-				thread Worker2([&](int* Progress) {
+				thread Worker1(&World::GenerateWorld, world, &Progress1, (WorldSize)ChosenSize, Name);
+				thread Worker2([&](long* Progress) {
 					for (int i = 0; i < WorldHeight; i++)
 					{
 						vector<vector<Item*>> temp;
@@ -425,26 +401,26 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 						Pickables.push_back(temp);
 					}
 
-					}, &Progress);
+					}, &Progress2);
 
-
-				while (Progress < WorldHeight * WorldWidth)
+				while (Progress1 + Progress2 < 2*WorldHeight * WorldWidth && !WindowShouldClose())
 				{
-
 
 					UpdateMusicStream(pUI->BacgroundMusic);
 					BeginDrawing();
 					ClearBackground(WHITE);
-					DrawText("Initializing Vectors", GetScreenWidth() / 2 - MeasureText("Initializing Vectors", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
+					DrawText("Generating World", GetScreenWidth() / 2 - MeasureText("Generating World", 40) / 2, GetScreenHeight() / 2 - 20, 40, BLACK);
 
-					DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)Progress / (WorldHeight * WorldWidth) * 400, 70, RED);
+					DrawRectangle(GetScreenWidth() / 2 - 200, GetScreenHeight() / 2 + 20, (float)(Progress1 + Progress2) / (2*WorldHeight * WorldWidth) * 400, 70, RED);
 
 					EndDrawing();
 				}
 
+				Worker1.join();
 				Worker2.join();
-				screenstate = Game;
 
+				screenstate = Game;
+				//player = new Player(pUI);
 				wall = world->GetWall();
 				dirtblocks = world->GetBlocks();
 				player.SetPos(world->GetSpawnPoint());
@@ -611,6 +587,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 	float backgroundWidth3;
 	float backgroundWidth4;
 	
+	// drawing the background
 
 	switch (Day)
 	{
@@ -678,10 +655,11 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 		break;
 	}
 
-
+	// drawing menus or the game
 	switch (screenstate)
 	{
 	case Main_Menu:
+
 		for (int i = 0; i < 4; i++)
 		{
 
@@ -695,36 +673,10 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 
 			}
 		}
-
-
-		/*if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Generate World",50) / 2,WindowHeight / 2.0f - 25, (float)MeasureText("Generate World",50),50 }))
-		{
-			DrawText("Generate World", WindowWidth / 2 - MeasureText("Generate World", 50) / 2, WindowHeight / 2 - 25, 50, YELLOW);
-		}
-		else
-		{
-			DrawText("Generate World", WindowWidth / 2 - MeasureText("Generate World", 50) / 2, WindowHeight / 2 - 25, 50, RAYWHITE);
-		}
-
-		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Setting",50) / 2,WindowHeight / 2.0f + 25, (float)MeasureText("Setting",50),50 }))
-		{
-			DrawText("Setting", WindowWidth / 2 - MeasureText("Setting", 50) / 2, WindowHeight / 2 + 25, 50, YELLOW);
-		}
-		else
-		{
-			DrawText("Setting", WindowWidth / 2 - MeasureText("Setting", 50) / 2, WindowHeight / 2 + 25, 50, RAYWHITE);
-		}
-
-		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Exit",50) / 2,WindowHeight / 2.0f + (50 + 25), (float)MeasureText("Exit",50),50 }))
-		{
-			DrawText("Exit", WindowWidth / 2 - MeasureText("Exit", 50) / 2, WindowHeight / 2 + 50 + 25, 50, YELLOW);
-		}
-		else
-		{
-			DrawText("Exit", WindowWidth / 2 - MeasureText("Exit", 50) / 2, WindowHeight / 2 + 50 + 25, 50, RAYWHITE);
-		}*/
 		break;
+
 	case Worlds_List:
+
 		DrawRectangle( WindowWidth / 2 - 0.3*WindowWidth, WindowHeight / 2 - 0.3 * WindowHeight, 0.6 * WindowWidth, 0.6 * WindowHeight,Fade(BLUE,0.7));
 		for (int i = 2; i < WorldCount; i++) {
 			if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText(Worlds[i], 50) / 2, WindowHeight / 2 - 0.3f * WindowHeight + (i - 2) * 55, (float)MeasureText(Worlds[i], 50),50 }))
@@ -746,8 +698,10 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 			DrawText("Back", WindowWidth / 2 - MeasureText("Back", 50)/2, WindowHeight / 2 + 0.3 * WindowHeight + 50, 50, RAYWHITE); // y value needs fixing
 		}
 		break;
+
 	case Loading:
 		break;
+
 	case Game:
 	{
 		BeginMode2D(camera);
@@ -757,10 +711,10 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 
 		Vector2 CenterPos = GetScreenToWorld2D(Vector2{ WindowWidth / 2.0f,WindowHeight / 2.0f }, camera); //player.GetPos();
 
-
+		// drawing the blocks that surrounds the center of the screen not the player since the camera is clamped at the edges 
 		for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
 		{
-			for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
+			for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) 
 			{
 				if (i >= 0 && j >= 0 && i < WorldHeight && j < WorldWidth) {
 					if (wall[i][j])
@@ -773,6 +727,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 			}
 		}
 
+		// i need to draw the fallen items seperately so that they don't hidden behind other blocks 
 		for (int i = ((int)(CenterPos.y - minPoint.y) / blockHeight) - WindowHeight / blockHeight * 0.5; i < (((CenterPos.y - minPoint.y) / blockHeight) + WindowHeight / blockHeight * 0.5) + 3; i++)
 		{
 			for (int j = ((int)(CenterPos.x - minPoint.x) / blockWidth) - WindowWidth / blockWidth * 0.5 - 3; j < ((CenterPos.x - minPoint.x) / blockWidth + WindowWidth / blockWidth * 0.5) + 3; j++) // 
@@ -782,6 +737,7 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 						Pickables[i][j][0]->DrawItem(0, Right, Mined);
 			}
 		}
+
 		for (auto i = FiredAmmo.begin(); i != FiredAmmo.end(); i++)
 		{
 			(*i)->DrawItem(0, Right, Placed);
@@ -791,11 +747,12 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 
 		player.draw();
 		EndMode2D();
-
-		player.drawInv();
+		// inventory needs to be drawn here after ending 2D mode to have it at a fixed location at the top of the screen
+		player.drawInv(); 
 		break;
 	}
-	case Pause:
+
+	case Pause: // pretty much the same as the (Game) state 
 	{
 		BeginMode2D(camera);
 
@@ -855,7 +812,11 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 		}
 	}
 		break;
+
+
 	case Settings:
+
+
 		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2,  WindowHeight / 2 + 0.3f * WindowHeight + 50, (float)MeasureText("Back", 50),50 }))
 		{
 			DrawText("Back", WindowWidth / 2 - MeasureText("Back", 60) / 2, WindowHeight / 2 + 0.3 * WindowHeight + 50, 60, YELLOW);
@@ -865,6 +826,8 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 			DrawText("Back", WindowWidth / 2 - MeasureText("Back", 50) / 2, WindowHeight / 2 + 0.3 * WindowHeight + 50, 50, RAYWHITE); // y value needs fixing
 		}
 		break;
+
+
 	case Generate_World:
 
 		for (int i = 0; i < 3; i++) {
@@ -903,14 +866,13 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 		break;
 	}
 
-		DrawFPS(WindowWidth-70, 20);
-	//EndScissorMode();
+	DrawFPS(WindowWidth-70, 20);
 	EndDrawing();
 }
 
-void Manager::DrawBackground(int WindowWidth, int WindowHeight)
-{
-}
+//void Manager::DrawBackground(int WindowWidth, int WindowHeight)
+//{
+//}
 
 void Manager::AddPickable(int i, int j, Item* item) 
 {
@@ -960,6 +922,7 @@ void Manager::AddFiredAmmo(Ammo* ammo)
 //		delete ammo;
 //	}
 //}
+
 Vector2 Manager::GetMinPoint()
 {
 	return minPoint;

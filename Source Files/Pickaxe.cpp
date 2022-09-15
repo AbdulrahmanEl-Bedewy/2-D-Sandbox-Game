@@ -79,7 +79,8 @@ void Pickaxe::UpdateItem(Manager* pManager)
 
 	}
 
-	else if (itemstate == Mined) {
+	else if (itemstate == Mined) 
+	{
 		Vector2 minPoint = pManager->GetMinPoint();
 		Vector2 maxPoint = pManager->GetMaxPoint();
 		std::vector<std::vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();

@@ -14,12 +14,12 @@ Inventory::Inventory(UIInfo* p /* for testing*/)
 	for (int i = 0; i < StorageSize; i++) ItemStacks[i] = nullptr;
 }
 
-Stack* Inventory::getStackFromPos(int p)
-{
-	return ItemStacks[p];
-}
+//Stack* Inventory::getStackFromPos(int p)
+//{
+//	return ItemStacks[p];
+//}
 
-int Inventory::GetOpenStackPos()
+int Inventory::GetOpenStackPos() // finds the index of the first empty place in the storage
 {
 	for (int i = 0; i < StorageSize; i++)
 	{
@@ -29,7 +29,7 @@ int Inventory::GetOpenStackPos()
 	return -1;
 }
 
-void Inventory::RemoveStack(int pos)
+void Inventory::RemoveStack(int pos) // remove a stack after all the items in the stack are used up. might need changes for deleting items in trash
 {
 
 	if (OpenStack.find(ItemStacks[pos]->items[0]->GetItemType()) != OpenStack.end()) {
@@ -58,7 +58,7 @@ void Inventory::RemoveStack(int pos)
 }
 
 
-bool Inventory::Insert(Item* item)
+bool Inventory::Insert(Item* item) // add item to inventort. true ---> there is storage and its added, false ---> otherwise
 {
 	if ( Size == StorageSize && OpenStack.find(item->GetItemType()) == OpenStack.end()) // full storage
 		return false;
@@ -181,7 +181,7 @@ void Inventory::UseItem(Manager* pManager)
 	}
 }
 
-void Inventory::IncrementSelectedPos(int increment)
+void Inventory::IncrementSelectedPos(int increment) // used to update the state of the items in the hotbar when scrolling through
 {
 	if (ItemStacks[SelectedPos])
 	{
@@ -205,7 +205,7 @@ void Inventory::UpdateSelected(Manager* pManager)
 	if(ItemStacks[SelectedPos])
 	ItemStacks[SelectedPos]->items[0]->UpdateItem(pManager);
 
-	if (IsKeyPressed(KEY_T)) {
+	if (IsKeyPressed(KEY_T)) { // throw item/stack
 
 		Vector2 playerPos = pManager->GetPlayer()->GetPos();
 		playerPos.y += 32;

@@ -17,7 +17,8 @@ void Dirt::UpdateItem(Manager* pManager)
 {
 
 
-	if (itemstate == Mined) {
+	if (itemstate == Mined) { // falling when mined
+
 		Vector2 minPoint = pManager->GetMinPoint();
 		Vector2 maxPoint = pManager->GetMaxPoint();
 		vector<vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();

@@ -31,9 +31,9 @@ public:
 	int GetWorldHeight();
 	int GetWorldWidth();
 
-	void GenerateWorld(int* BlocksFinished, WorldSize size,std::string Name);
+	void GenerateWorld(long* BlocksFinished, WorldSize size,std::string Name);
 	void SaveWorld();
-	void LoadWorld(const std::string name);
+	void LoadWorld(int* Progress,const std::string name);
 	bool PlaceBlock(int i, int j, Item* item);
 	void RemoveBlock(int i, int j);
 

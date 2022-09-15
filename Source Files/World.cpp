@@ -46,7 +46,7 @@ int World::GetWorldWidth()
 
 
 
-void World::GenerateWorld(int* BlocksFinished, WorldSize size, string Name)
+void World::GenerateWorld(long* BlocksFinished, WorldSize size, string Name)
 {
 
 	this->Name = Name;
@@ -125,7 +125,7 @@ void World::GenerateWorld(int* BlocksFinished, WorldSize size, string Name)
 void World::SaveWorld()
 {
 	ofstream Outputfile;
-	Outputfile.open("Worlds/" + Name , ios::out);
+	Outputfile.open("Worlds/" + Name + ".txt", ios::out);
 
 	Outputfile << WorldHeight << endl << WorldWidth << endl;
 	Outputfile << SpawnPoint.x << " " << SpawnPoint.y << endl;
@@ -153,7 +153,7 @@ void World::SaveWorld()
 	Outputfile.close();
 }
 
-void World::LoadWorld(const std::string name)
+void World::LoadWorld(int* Progress,const std::string name)
 {
 	ifstream inputfile;
 	inputfile.open("Worlds/" + name, ios::in);
@@ -196,6 +196,7 @@ void World::LoadWorld(const std::string name)
 			default:
 				break;
 			}
+			(*Progress)++;
 		}
 
 		Blocks.push_back(temp);

@@ -21,7 +21,8 @@ Bow::Bow(UIInfo* p, Vector2 position)
 
 void Bow::UpdateItem(Manager* pManager)
 {
-	if (itemstate == Onhand)
+	// Rotation effect while using the item. also changes the player orientation if mouse pos changes to the other side
+	if (itemstate == Onhand) 
 	{
 		if (animate && IsMouseButtonReleased(MOUSE_BUTTON_LEFT))
 		{
@@ -63,7 +64,8 @@ void Bow::UpdateItem(Manager* pManager)
 		}
 		pos = pManager->GetScreenXY(pManager->GetPlayer()->GetPos());
 	}
-	else if (itemstate == Mined) {
+	else if (itemstate == Mined) { // falling to the ground
+
 		Vector2 minPoint = pManager->GetMinPoint();
 		Vector2 maxPoint = pManager->GetMaxPoint();
 		std::vector<std::vector<Item*>>::const_iterator dirtblocks = pManager->GetDirtBlocks();
@@ -114,6 +116,7 @@ void Bow::DrawItem(int rotation, PlayerOrientaion orientation, ItemState State, 
 	switch (itemstate)
 	{
 	case Onhand:
+		//draw it in inventory play (invpos) and on the player's hand
 		if (orientation == Left)
 		{
 			DrawTexturePro(pUI->Bow, Rectangle{ 192.0f + frame * 64, 64, 64 , 64 }, Rectangle{ pos.x + 10 ,pos.y + 45, 50 , 50 }, Vector2{ 17.1875, 30.078125 }, this->rotation, WHITE);
