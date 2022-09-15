@@ -66,11 +66,15 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) 
 			{
 				Worlds = GetDirectoryFiles("Worlds", &WorldCount);
+				
+
 				for (int i = 2; i < WorldCount; i++)
 				{
 					if (!IsFileExtension(Worlds[i], ".txt"))
 					{
+						char* temp = Worlds[i];
 						Worlds[i] = Worlds[WorldCount - 1];
+						Worlds[WorldCount - 1] = temp;
 						WorldCount--;
 						i--;
 					}
@@ -194,6 +198,8 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 					minPoint = Vector2{ -WorldWidth / 2.0f * blockWidth ,-WorldHeight / 2.0f * blockHeight };
 					maxPoint = Vector2{ WorldWidth / 2.0f * blockWidth ,WorldHeight / 2.0f * blockHeight };
 
+					ClearDirectoryFiles();
+
 					screenstate = Game;
 				}
 			}
@@ -201,6 +207,7 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2,  WindowHeight / 2 + 0.3f * WindowHeight + 50, (float)MeasureText("Back", 50),50 }))
 		{
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+				ClearDirectoryFiles();
 				screenstate = Main_Menu;
 			}
 		}
