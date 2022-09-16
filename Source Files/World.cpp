@@ -153,10 +153,10 @@ void World::SaveWorld()
 	Outputfile.close();
 }
 
-void World::LoadWorld(int* Progress,const std::string name)
+void World::LoadWorld(long* Progress,const std::string name)
 {
 	ifstream inputfile;
-	inputfile.open("Worlds/" + name, ios::in);
+	inputfile.open("Worlds/" + name + ".txt", ios::in);
 	Name = name;
 
 	inputfile >> WorldHeight >> WorldWidth;
@@ -201,56 +201,16 @@ void World::LoadWorld(int* Progress,const std::string name)
 
 		Blocks.push_back(temp);
 	}
-
-	//int i = 0, j = 0;
-
-	//string temp;
-	//while(getline(inputfile,temp)){
-	//	stringstream iss(temp);
-	//	vector<Item*> temp;
-	//	wall.push_back(vector<int>{});
-	//	int dummy;
-
-	//	while (iss >> dummy)
-	//	{
-	//		//inputfile >> dummy;
-	//		Item* d = NULL;
-	//		switch (dummy)
-	//		{
-	//		case 00:
-	//			temp.push_back(NULL);
-	//			wall[i].push_back(0);
-	//			break;
-	//		case 01:
-	//			temp.push_back(NULL);
-	//			wall[i].push_back(1);
-	//			break;
-	//		case 10:
-	//			d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
-	//			d->setState(Placed);
-	//			temp.push_back(d);
-	//			wall[i].push_back(0);
-	//			break;
-	//		case 11:
-	//			d = new Dirt(pUI, Block, Vector2{ (float)j * blockWidth + minPoint.x, (float)i * blockHeight + minPoint.y });
-	//			d->setState(Placed);
-	//			temp.push_back(d);
-	//			wall[i].push_back(1);
-	//			break;
-	//		default:
-	//			break;
-	//		}
-	//			j++;
-
-	//	}
-	//		i++; j = 0;
-
-	//	Blocks.push_back(temp);
-	//}
-	//WorldHeight = i;
-	//WorldWidth = i;
-
 	inputfile.close();
+}
+
+Vector2 World::LoadWorldSize(const std::string name)
+{
+	ifstream inputfile;
+	inputfile.open("Worlds/" + name + ".txt", ios::in);
+	inputfile >> WorldHeight >> WorldWidth;
+	inputfile.close();
+	return Vector2{ (float)WorldWidth, (float)WorldHeight };
 }
 
 bool World::PlaceBlock(int i, int j, Item* item)

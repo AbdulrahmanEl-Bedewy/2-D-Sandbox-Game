@@ -33,7 +33,8 @@ public:
 
 	void GenerateWorld(long* BlocksFinished, WorldSize size,std::string Name);
 	void SaveWorld();
-	void LoadWorld(int* Progress,const std::string name);
+	void LoadWorld(long* Progress,const std::string name);
+	Vector2 LoadWorldSize(const std::string name);
 	bool PlaceBlock(int i, int j, Item* item);
 	void RemoveBlock(int i, int j);
 
