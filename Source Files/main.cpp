@@ -37,7 +37,7 @@ int main() {
 	ui_Info.BacgroundMusic = LoadMusicStream("Textures/Road to Dazir.mp3");
 
 
-	PlayMusicStream(ui_Info.BacgroundMusic);
+	
 
 
 	Manager manager(&ui_Info);
@@ -45,7 +45,6 @@ int main() {
 
 	while (!WindowShouldClose())
 	{
-		UpdateMusicStream(ui_Info.BacgroundMusic);
 		int height = GetScreenHeight();
 		int width = GetScreenWidth();
 

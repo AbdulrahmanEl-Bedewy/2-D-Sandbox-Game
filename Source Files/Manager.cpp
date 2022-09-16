@@ -31,6 +31,8 @@ Manager::Manager(UIInfo* p) : player(p)
 	PauseMenu[1] = "Settings";
 	PauseMenu[2] = "Exit";
 
+	SettingsMenu[0] = "Music";
+
 	Name = "";
 
 	ChosenSize = -1;
@@ -45,11 +47,17 @@ Manager::Manager(UIInfo* p) : player(p)
 	camera.rotation = 0.0f;
 	camera.zoom = 1;
 
+	PlayMusicStream(pUI->BacgroundMusic);
+
+	Music_On = true;
+
 	
 }
 
 void Manager::Update(int WindowWidth, int WindowHeight)
 {
+	if(Music_On)
+		UpdateMusicStream(pUI->BacgroundMusic);
 	switch (screenstate)
 	{
 	case Main_Menu:
@@ -328,6 +336,15 @@ void Manager::Update(int WindowWidth, int WindowHeight)
 		scrollingBack2 -= 0.6f;
 		scrollingBack3 -= 2.1f;
 		scrollingBack4 -= 3.0f;
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText(TextFormat("Music : %s" , (Music_On) ? "On" : "Off"),50) / 2,WindowHeight / 2.0f - 75, (float)MeasureText(TextFormat("Music : %s" , (Music_On) ? "On" : "Off"),50),50 }))
+		{
+			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
+			{
+				Music_On = !Music_On;
+			}
+		}
+
 		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2,  WindowHeight / 2 + 0.3f * WindowHeight + 50, (float)MeasureText("Back", 50),50 }))
 		{
 			if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -823,6 +840,16 @@ void Manager::Draw(int WindowWidth, int WindowHeight)
 
 	case Settings:
 
+
+		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText(TextFormat("Music : %s" , (Music_On) ? "On" : "Off"),50) / 2,WindowHeight / 2.0f - 75, (float)MeasureText(TextFormat("Music : %s" , (Music_On) ? "On" : "Off"),50),50 }))
+		{
+			DrawText(TextFormat("Music : %s", (Music_On) ? "On" : "Off"), WindowWidth / 2 - MeasureText(TextFormat("Music : %s", (Music_On) ? "On" : "Off"), 60) / 2, WindowHeight / 2 - 75, 60, YELLOW);
+		}
+		else
+		{
+			DrawText(TextFormat("Music : %s" , (Music_On) ? "On" : "Off"), WindowWidth / 2 - MeasureText(TextFormat("Music : %s", (Music_On) ? "On" : "Off"), 50) / 2, WindowHeight / 2 - 75, 50, RAYWHITE);
+
+		}
 
 		if (CheckCollisionPointRec(GetMousePosition(), Rectangle{ WindowWidth / 2.0f - MeasureText("Back", 50) / 2,  WindowHeight / 2 + 0.3f * WindowHeight + 50, (float)MeasureText("Back", 50),50 }))
 		{
